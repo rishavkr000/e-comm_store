@@ -154,7 +154,7 @@ const loginUser = async function (req, res) {
     }
 }
 
-//******************************************************< Get User Details >******************************************************//
+//******************************************************< Get User Details >****************************************************//
 
 const profileDetails = async function (req,res){
     try {
@@ -177,19 +177,27 @@ const profileDetails = async function (req,res){
 
 //******************************************************< Update User Details >******************************************************//
 
-const updateUser = async (req, res) => {
+const updateUser = async function (req, res){
     try{
         const userId = req.params.userId;
         if(!isValidObjectId(userId)){
             return res.status(400).send({ status: false, msg: "Please enter a valid userId" })
         }
+
+        const findUserDetails =await userModel.findById(userId)
+        if(!findUserDetails){
+            return res.status(404).send({status: false, msg: "UserDetails not found"}) 
+        }
         if(userId != req.userId) return res.status(403).send({status: false, msg: "User not authorized to update details"})
+
         let data = JSON.parse(req.body.body)
-
+        if(Object.keys(data).length ===0){
+            return res.send({status: false, msg: "Nothing to Update"})
+         }
         let files = req.files
-
+        let uploadedFileURL
         if (files && files.length > 0) {
-             const uploadedFileURL = await uploadFile(files[0])
+            uploadedFileURL = await uploadFile(files[0])
         }
         else {
             res.status(400).send({ msg: "No file found" })
@@ -197,14 +205,16 @@ const updateUser = async (req, res) => {
 
         let updateDetails = {}
 
+        let { fname, lname, email,password, phone, address } = data
+
         if(data.hasOwnProperty("fname")){
             if(!isValid(fname))return res.status(400).send({status:false, msg:'Enter fname.'})
-            updateDetails.fname = fname
+            updateDetails["fname"] = fname.trim()
         }
 
         if(data.hasOwnProperty("lname")){
             if(!isValid(lname))return res.status(400).send({status:false, msg:'Enter lname.'})
-            updateDetails.lname = lname
+            updateDetails.lname = lname.trim()
         }
 
         if(data.hasOwnProperty("email")){
@@ -218,7 +228,7 @@ const updateUser = async (req, res) => {
         }
         let existingEmail= await userModel.findOne({email:email})
         if(existingEmail)return res.status(400).send({status:false, msg:`${email} already exists.`})
-        updateDetails.email = email
+        updateDetails.email = email.trim()
 
         if(data.hasOwnProperty("password")){
             if(!isValid(password))return res.status(400).send({status:false, msg:'Enter password.'})
@@ -233,9 +243,9 @@ const updateUser = async (req, res) => {
         if(data.hasOwnProperty("phone")){
             if(!isValid(phone))return res.status(400).send({status:false, msg:'Enter phone.'})
         }
-
-        //if(!(/^[6-9]\d{9}$/.test(phone))) return res.status(400).send({ status: false, msg: "Please enter a valid Indian Mobile Number."})
-        if (`${phone}`.length < 10 || `${phone}`.length > 10) {
+        
+        // if (`${phone}`.length < 10 && `${phone}`.length > 10) {
+        if(!(/^[6-9]\d{9}$/.test(phone))){
             return res.status(400).send({ status: false, msg: "Please enter a valid Mobile Number" })
         }
         let existingPhone= await userModel.findOne({phone:phone})
@@ -244,34 +254,35 @@ const updateUser = async (req, res) => {
 
         if(data.hasOwnProperty("address")){
             if(!isValid(address.shipping.street))return res.status(400).send({status:false, msg:'Enter shipping street.'})
-            updateDetails.address.shipping.street = address.shipping.street
+            updateDetails.address.shipping.street = address.shipping.street.trim()
 
             if(!isValid(address.shipping.city))return res.status(400).send({status:false, msg:'Enter shipping city.'})
-            updateDetails.address.shipping.city = address.shipping.city
+            updateDetails.address.shipping.city = address.shipping.city.trim()
 
             if(!isValid(address.shipping.pincode))return res.status(400).send({status:false, msg:'Enter shipping pincode.'})
-            updateDetails.address.shipping.pincode = address.shipping.pincode
+            updateDetails.address.shipping.pincode = address.shipping.pincode.trim()
             
             if(!isValid(address.billing.street))return res.status(400).send({status:false, msg:'Enter billing street.'})
-            updateDetails.address.shipping.street = address.shipping.street
+            updateDetails.address.shipping.street = address.shipping.street.trim()
 
             if(!isValid(address.billing.city))return res.status(400).send({status:false, msg:'Enter billing city.'})
-            updateDetails.address.shipping.city = address.shipping.city
+            updateDetails.address.shipping.city = address.shipping.city.trim()
 
             if(!isValid(address.billing.pincode))return res.status(400).send({status:false, msg:'Enter billing pincode.'})
-            updateDetails.address.shipping.pincode = address.shipping.pincode
+            updateDetails.address.shipping.pincode = address.shipping.pincode.trim()
 
         }
+          updateDetails.profileImage = uploadedFileURL
 
-        const updateData = await userModel.findByIdAndUpdate({_id: userId}, {set: updateDetails}, {new: true})
 
+        const updateData = await userModel.findOneAndUpdate({_id: userId}, {$set: updateDetails}, {new: true})
         if(!updateData) return res.status(400).send({status:false, msg:'Not Found'})
 
         return res.status(200).send({status:false, msg:'Data Update Successfully', data: updateData})
 
     }
     catch (error) {
-        res.status(500).send({ status: false, message: error })
+        res.status(500).send({ status: false, message: error.message })
         
     }
 }
