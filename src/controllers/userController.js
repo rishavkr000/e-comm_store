@@ -7,7 +7,7 @@ const jwt = require ("jsonwebtoken")
 const {isValid,isValidRequestBody,isValidObjectId} = require("../utils/validator")
 
 
-//***********************************************************< AWS >************************************************************//
+//***********************************************************< AWS>*********************************************************//
 aws.config.update({
     accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
     secretAccessKey: "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",
@@ -21,8 +21,8 @@ let uploadFile = async (file) => {
 
         var uploadParams = {
             ACL: "public-read",
-            Bucket: "classroom-training-bucket",  //HERE
-            Key: "group41/" + file.originalname, //HERE 
+            Bucket: "classroom-training-bucket",
+            Key: "group41/" + file.originalname, 
             Body: file.buffer
         }
 
@@ -38,6 +38,7 @@ let uploadFile = async (file) => {
 
     })
 }
+
 
 const postRegister = async function (req, res) {
     try {
@@ -154,7 +155,7 @@ const loginUser = async function (req, res) {
     }
 }
 
-//******************************************************< Get User Details >****************************************************//
+//******************************************************< Get User Details **************************************************//
 
 const profileDetails = async function (req,res){
     try {
@@ -175,7 +176,7 @@ const profileDetails = async function (req,res){
     }
 }
 
-//******************************************************< Update User Details >******************************************************//
+//****************************************************< Update User Details ************************************************//
 
 const updateUser = async function (req, res){
     try{
@@ -276,7 +277,7 @@ const updateUser = async function (req, res){
 
 
         const updateData = await userModel.findOneAndUpdate({_id: userId}, {$set: updateDetails}, {new: true})
-        if(!updateData) return res.status(400).send({status:false, msg:'Not Found'})
+        // if(!updateData) return res.status(400).send({status:false, msg:'Not Found'})
 
         return res.status(200).send({status:false, msg:'Data Update Successfully', data: updateData})
 
