@@ -1,14 +1,15 @@
 const express = require('express')
-const app = express()
-const multer = require("multer");
-const { AppConfig } = require('aws-sdk');
-
+const multer = require("multer")
+const { AppConfig } = require('aws-sdk')
 const bodyparser = require('body-parser')
-const router = require('./routes/route')
+const mongoose = require('mongoose')
+
+const app = express()
 app.use(bodyparser.json())
 app.use(multer().any())
 
-const mongoose = require('mongoose')
+const router = require('./routes/route')
+
 mongoose.connect("mongodb+srv://amit-DB:amit3112@cluster0.eztoe.mongodb.net/group41Database",
     { useNewUrlParser: true })
     .then(() => console.log("mongoDB is Connected!!"))
