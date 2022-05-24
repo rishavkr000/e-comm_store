@@ -1,17 +1,17 @@
 const mongoose = require("mongoose")
 
-const isValidData = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
+const isValid = function (value) {
+    if (typeof value === 'undefined' || value === null) return false //it checks whether the value is null or undefined.
+    if (typeof value === 'string' && value.trim().length === 0) return false //it checks whether the string contain only space or not 
     return true;
-}
-
-const isValidRequestBody = function (requestBody) {
-    return Object.keys(requestBody).length > 0;
 };
 
+const isValidRequestBody = function (requestBody) {
+    return Object.keys(requestBody).length > 0
+}
 
 
 
 
-module.exports = { isValidData, isValidRequestBody}
+
+module.exports = { isValid, isValidRequestBody}

@@ -2,20 +2,12 @@ const aws = require('aws-sdk')
 const bcrypt = require('bcrypt');
 const { json } = require('body-parser');
 const userModel = require('../models/userModel')
+const jwt = require ("jsonwebtoken")
+
+const {isValid,isValidRequestBody} = require("../utils/validator")
 
 
-const isValid = function (value) {
-    if (typeof value === 'undefined' || value === null) return false //it checks whether the value is null or undefined.
-    if (typeof value === 'string' && value.trim().length === 0) return false //it checks whether the string contain only space or not 
-    return true;
-};
-
-const isValidRequestBody = function (requestBody) {
-    return Object.keys(requestBody).length > 0
-}
-
-
-/*******************************AWS******************************************************/
+//***********************************************************< AWS >************************************************************//
 aws.config.update({
     accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
     secretAccessKey: "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",
@@ -76,7 +68,7 @@ const postRegister = async function (req, res) {
         if(existingEmail)return res.status(400).send({status:false, msg:`${email} already exists.`})
 
         if(!isValid(phone))return res.status(400).send({status:false, msg:'Enter phone.'})
-        //if(!(^[6-9]\d{9}$.test(phone))) return res.status(400).send({ status: false, msg: "Please enter a valid Indian Mobile Number."})
+        //if(!(/^[6-9]\d{9}$/.test(phone))) return res.status(400).send({ status: false, msg: "Please enter a valid Indian Mobile Number."})
         if (`${phone}`.length < 10 || `${phone}`.length > 10) {
             return res.status(400).send({ status: false, msg: "Please enter a valid Mobile Number" })
         }
@@ -84,7 +76,7 @@ const postRegister = async function (req, res) {
         if(existingPhone)return res.status(400).send({status:false, msg:`${phone} already exists.`})
 
         if(!isValid(password))return res.status(400).send({status:false, msg:'Enter password.'})
-        if (!(`${password}`.length < 15 || `${password}`.length > 8)) {
+        if (!(`${password}`.length <= 15 || `${password}`.length >= 8)) {
             return res.status(400).send({ status: false, msg: "Please enter password length from 8 to 15" })
         }
         data.password = await bcrypt.hash(password,10)
@@ -109,4 +101,58 @@ const postRegister = async function (req, res) {
 }
 
 
-module.exports = { postRegister }
+//******************************************************< User Login >******************************************************//
+
+const loginUser = async function (req, res) {
+    try {
+        const loginData = req.body;
+
+        if (!isValidRequestBody(loginData)) return res.status(400).send({ status: false, message: "Login Credentials cannot be empty" })
+
+        const { email, password } = loginData
+
+        if(!isValid(email)) return res.status(400).send({ status: false, message: "Email is required" })
+        if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
+            return res.status(400).send({ status: false, msg: "Please enter a valid email address" })
+        }
+
+        if(!isValid(password)) return res.status(400).send({ status: false, message: "Password is required" })
+        if (!(`${password}`.length <= 15 && `${password}`.length >= 8)) {
+            return res.status(400).send({ status: false, msg: "Please enter password length from 8 to 15" })
+        }
+
+        //DB call for checking user is valid user
+        const user = await userModel.findOne({ email: email})
+        if (!user) {
+            return res.status(404).send({ status: false, message: "Email is not correct" })
+        }
+        const samePassword = await bcrypt.compare(password,user.password);
+        if(!samePassword){
+            return res.status(404).send({ status: false, message: "Password is not correct" })
+        }
+
+        let token = jwt.sign(
+            {
+                userId: user._id.toString(),
+                batch: "Uranium",
+                organisation: "FunctionUp",
+                exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour 1200s | 2500 (60*10) | (60 * min)
+            },
+            "functionUp-Uranium"
+        )
+        //sending token in header response
+        res.setHeader("Authorization","Bearer Token", token)
+
+        const data = {
+            user: user._id,
+            token : token
+        }
+        res.status(200).send({ status: true, data: data })
+    }
+    catch (error) {
+        res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+module.exports = { postRegister,loginUser}
