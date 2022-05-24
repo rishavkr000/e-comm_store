@@ -108,5 +108,4 @@ const postRegister = async function (req, res) {
     }
 }
 
-
-module.exports = { postRegister }
+module.exports = { postRegister}
