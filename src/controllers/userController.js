@@ -190,8 +190,8 @@ const updateUser = async function (req, res){
         }
         if(userId != req.userId) return res.status(403).send({status: false, msg: "User not authorized to update details"})
 
-        let data = JSON.parse(req.body.body)
-        if(Object.keys(data).length ===0){
+        let data = JSON.stringify(req.body.body)
+        if(!data){
             return res.send({status: false, msg: "Nothing to Update"})
          }
         let files = req.files
