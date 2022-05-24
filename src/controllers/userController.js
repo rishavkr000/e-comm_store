@@ -4,7 +4,7 @@ const { json } = require('body-parser');
 const userModel = require('../models/userModel')
 const jwt = require ("jsonwebtoken")
 
-const {isValid,isValidRequestBody} = require("../utils/validator")
+const {isValid,isValidRequestBody,isValidObjectId} = require("../utils/validator")
 
 
 //***********************************************************< AWS >************************************************************//
@@ -141,7 +141,7 @@ const loginUser = async function (req, res) {
             "functionUp-Uranium"
         )
         //sending token in header response
-        res.setHeader("Authorization","Bearer Token", token)
+        res.setHeader("Authorization","Bearer" + token)
 
         const data = {
             user: user._id,
@@ -154,5 +154,27 @@ const loginUser = async function (req, res) {
     }
 }
 
+//******************************************************<  >******************************************************//
 
-module.exports = { postRegister,loginUser}
+const profileDetails = async function (req,res){
+    try {
+        const userId = req.params.userId;
+        if(!isValidObjectId(userId)){
+            return res.status(400).send({ status: false, msg: "Please enter a valid userId" })
+        }
+
+        const user = await userModel.findById(userId);
+        if(!user){
+            return res.status(404).send({ status: false, msg: "User not Found" }) 
+        }
+
+        res.status(200).send({ status: true, data: user })
+    } catch (error) {
+        res.status(500).send({ status: false, message: error.message })
+        
+    }
+}
+
+
+
+module.exports = { postRegister,loginUser, profileDetails}

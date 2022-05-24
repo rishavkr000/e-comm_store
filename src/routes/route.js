@@ -1,11 +1,13 @@
 const express = require('express')
 const router = express.Router()
 
-const { postRegister,loginUser} = require('../controllers/userController')
+const { postRegister,loginUser,profileDetails} = require('../controllers/userController')
+const {authentication} = require("../middlewares/auth")
 
 
 router.post('/register', postRegister)
 router.post('/login', loginUser)
+router.get("/user/:userId/profile",authentication,profileDetails)
 
 
 
