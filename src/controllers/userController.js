@@ -1,6 +1,6 @@
 const { uploadFile } = require('../utils/aws')
 const bcrypt = require('bcrypt');
-const { json } = require('body-parser');
+// const JSON = require('body-parser');
 const userModel = require('../models/userModel')
 const jwt = require("jsonwebtoken")
 
@@ -198,7 +198,6 @@ const updateUser = async function (req, res) {
         // if (!userId) {
         //     return res.status(400).send({ status: false, message: "Please Provide UserId" });
         // }
-
         if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, msg: "Please enter a valid userId" })
         }
@@ -208,7 +207,7 @@ const updateUser = async function (req, res) {
             return res.status(404).send({ status: false, message: "User Not Found" });
         }
 
-        // if (userId != req.userId) return res.status(403).send({ status: false, msg: "User not authorized to update details" })
+        if (userId != req.userId) return res.status(403).send({ status: false, msg: "User not authorized to update details" })
 
 
         let { fname, lname, email, password, phone, address } = data

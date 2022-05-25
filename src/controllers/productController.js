@@ -1,48 +1,9 @@
 const productModel = require("../models/productModel")
-const aws = require('aws-sdk')
+const {uploadFile} = require('../utils/aws')
+const {isValid,isValidRequestBody} = require("../utils/validator")
 
 
-const isValid = function (value) {
-    if (typeof value === 'undefined' || value === null) return false //it checks whether the value is null or undefined.
-    if (typeof value === 'string' && value.trim().length === 0) return false //it checks whether the string contain only space or not 
-    return true;
-};
 
-const isValidRequestBody = function (requestBody) {
-    return Object.keys(requestBody).length > 0
-}
-
-
-//aws
-aws.config.update({
-    accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
-
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
-
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket",  //HERE
-            Key: "group41/" + file.originalname, //HERE 
-            Body: file.buffer
-        }
-
-
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-
-    })
-}
 
 const postProducts = async function (req, res) {
     try {

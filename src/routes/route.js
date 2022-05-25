@@ -2,17 +2,16 @@ const express = require('express')
 const router = express.Router()
 
 const { postRegister,loginUser,profileDetails,updateUser} = require('../controllers/userController')
-const { postProducts } = require('../controllers/productController')
 const {authentication} = require("../middlewares/auth")
 
 
 router.post('/register', postRegister)
 router.post('/login', loginUser)
 router.get("/user/:userId/profile",authentication,profileDetails)
-router.put("/user/:userId/profile",updateUser )
+router.put("/user/:userId/profile", authentication,updateUser )
 
 
-router.post('/products', postProducts)
+
 
 
 
