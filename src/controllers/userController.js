@@ -31,7 +31,6 @@ let uploadFile = async (file) => {
             if (err) {
                 return reject({ "error": err })
             }
-            console.log(data)
             console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
@@ -42,9 +41,10 @@ let uploadFile = async (file) => {
 
 const postRegister = async function (req, res) {
     try {
-        let data = JSON.parse(req.body.body)
+        let data = JSON.parse(JSON.stringify(req.body))
         
         if(!isValidRequestBody(data))return res.status(400).send({status:false, msg:'Enter details for user creation.'})
+        data.address=JSON.parse(data.address)
         
         let files = req.files
         let uploadedFileURL
@@ -69,7 +69,7 @@ const postRegister = async function (req, res) {
         if(existingEmail)return res.status(400).send({status:false, msg:`${email} already exists.`})
 
         if(!isValid(phone))return res.status(400).send({status:false, msg:'Enter phone.'})
-        //if(!(/^[6-9]\d{9}$/.test(phone))) return res.status(400).send({ status: false, msg: "Please enter a valid Indian Mobile Number."})
+        if(!(/^[6-9]\d{9}$/.test(phone))) return res.status(400).send({ status: false, msg: "Please enter a valid Indian Mobile Number."})
         if (`${phone}`.length < 10 || `${phone}`.length > 10) {
             return res.status(400).send({ status: false, msg: "Please enter a valid Mobile Number" })
         }
