@@ -8,7 +8,7 @@ const {authentication} = require("../middlewares/auth")
 router.post('/register', postRegister)
 router.post('/login', loginUser)
 router.get("/user/:userId/profile",authentication,profileDetails)
-router.put("/user/:userId/profile", authentication,updateUser )
+router.put("/user/:userId/profile",updateUser )
 
 
 
