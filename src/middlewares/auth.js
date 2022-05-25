@@ -8,9 +8,9 @@ const authentication = async function (req, res, next) {
         if (!bearerToken) token = req.headers["Authorization"]
         if (!bearerToken)
             return res.status(400).send({ status: false, message: "Token required! Please login to generate token" });
-// console.log(bearerToken)
+console.log(bearerToken)
         const token = bearerToken.split(" ")[1]
-    //   console.log(token)
+      console.log(token)
         let decodedToken = jwt.verify(token, "functionUp-Uranium");
         if (!decodedToken)
             return res.status(400).send({ status: false, message: "Inter valid token" });

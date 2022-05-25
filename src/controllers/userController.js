@@ -1,61 +1,30 @@
-const aws = require('aws-sdk')
+const {uploadFile} = require("../utils/aws")
 const bcrypt = require('bcrypt');
 const {
     json
 } = require('body-parser');
 const userModel = require('../models/userModel')
 const jwt = require("jsonwebtoken")
+const P = require('pincode-validator');
 
 const {
     isValid,
     isValidRequestBody,
-    isValidObjectId
+    isValidObjectId,
+    isValidPincode
 } = require("../utils/validator")
 
 
-//***********************************************************< AWS >************************************************************//
-aws.config.update({
-    accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
-
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new aws.S3({
-            apiVersion: '2006-03-01'
-        }); // we will be using the s3 service of aws
-
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket", //HERE
-            Key: "group41/" + file.originalname, //HERE 
-            Body: file.buffer
-        }
-
-
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({
-                    "error": err
-                })
-            }
-            console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-
-    })
-}
-
 const postRegister = async function (req, res) {
     try {
-        let data = JSON.parse(req.body.body)
+        let data = JSON.parse(JSON.stringify(req.body))
 
         if (!isValidRequestBody(data)) return res.status(400).send({
             status: false,
             msg: 'Enter details for user creation.'
         })
+
+        data.address=JSON.parse(data.address)
 
         let files = req.files
         let uploadedFileURL
@@ -135,6 +104,8 @@ const postRegister = async function (req, res) {
         }
         data.password = await bcrypt.hash(password, 10)
 
+        
+
         if (!isValid(address.shipping.street)) return res.status(400).send({
             status: false,
             msg: 'Enter shipping street.'
@@ -147,6 +118,11 @@ const postRegister = async function (req, res) {
             status: false,
             msg: 'Enter shipping pincode.'
         })
+        P.validate(address.shipping.pincode);
+        // if (!isValidPincode(address.shipping.pincode)) return res.status(400).send({
+        //     status: false,
+        //     msg: 'Enter valid Shipping Pincode.'
+        // })
 
         if (!isValid(address.billing.street)) return res.status(400).send({
             status: false,
@@ -160,6 +136,11 @@ const postRegister = async function (req, res) {
             status: false,
             msg: 'Enter billing pincode.'
         })
+        P.validate(address.billing.pincode);
+        // if (!isValidPincode(address.billing.pincode)) return res.status(400).send({
+        //     status: false,
+        //     msg: 'Enter valid Billing Pincode.'
+        // })
 
         data.profileImage = uploadedFileURL
 
@@ -262,7 +243,7 @@ const loginUser = async function (req, res) {
     }
 }
 
-//******************************************************< Get User Details >****************************************************//
+//******************************************************< Get User Details **************************************************//
 
 const profileDetails = async function (req, res) {
     try {
@@ -295,285 +276,201 @@ const profileDetails = async function (req, res) {
     }
 }
 
-//******************************************************< Update User Details >******************************************************//
+//****************************************************< Update User Details ************************************************//
 
-// const updateUser = async function (req, res) {
-//     try {
-//         const userId = req.params.userId;
-//         if (!isValidObjectId(userId)) {
-//             return res.status(400).send({
-//                 status: false,
-//                 msg: "Please enter a valid userId"
-//             })
-//         }
-
-//         const updateDetailsDetails = await userModel.findById(userId)
-//         if (!updateDetailsDetails) {
-//             return res.status(404).send({
-//                 status: false,
-//                 msg: "UserDetails not found"
-//             })
-//         }
-//         if (userId != req.userId) return res.status(403).send({
-//             status: false,
-//             msg: "User not authorized to update details"
-//         })
-
-//         let data = JSON.stringify(req.body.body)
-//         if (!data) {
-//             return res.send({
-//                 status: false,
-//                 msg: "Nothing to Update"
-//             })
-//         }
-//         let files = req.files
-//         let uploadedFileURL
-//         if (files && files.length > 0) {
-//             uploadedFileURL = await uploadFile(files[0])
-//         } else {
-//             res.status(400).send({
-//                 msg: "No file found"
-//             })
-//         }
-
-//         let updateDetails = {}
-
-//         let {
-//             fname,
-//             lname,
-//             email,
-//             password,
-//             phone,
-//             address
-//         } = data
-
-//         if (data.hasOwnProperty("fname")) {
-//             if (!isValid(fname)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter fname.'
-//             })
-//             updateDetails["fname"] = fname.trim()
-//         }
-
-//         if (data.hasOwnProperty("lname")) {
-//             if (!isValid(lname)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter lname.'
-//             })
-//             updateDetails.lname = lname.trim()
-//         }
-
-//         if (data.hasOwnProperty("email")) {
-//             if (!isValid(email)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter email.'
-//             })
-
-//         }
-//         if (!isValid(email)) return res.status(400).send({
-//             status: false,
-//             msg: 'Enter email.'
-//         })
-    
-//         if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
-//             return res.status(400).send({
-//                 status: false,
-//                 msg: "Please enter a valid email address"
-//             })
-//         }
-//         let existingEmail = await userModel.findOne({
-//             email: email
-//         })
-//         if (existingEmail) return res.status(400).send({
-//             status: false,
-//             msg: `${email} already exists.`
-//         })
-//         updateDetails.email = email.trim()
-
-//         if (data.hasOwnProperty("password")) {
-//             if (!isValid(password)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter password.'
-//             })
-//         }
-//         if (!(`${password}`.length <= 15 && `${password}`.length >= 8)) {
-//             return res.status(400).send({
-//                 status: false,
-//                 msg: "Please enter password length from 8 to 15"
-//             })
-//         }
-//         data.password = await bcrypt.hash(password, 10)
-//         updateDetails.password = password
-
-
-//         if (data.hasOwnProperty("phone")) {
-//             if (!isValid(phone)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter phone.'
-//             })
-//         }
-
-//         // if (`${phone}`.length < 10 && `${phone}`.length > 10) {
-//         if (!(/^[6-9]\d{9}$/.test(phone))) {
-//             return res.status(400).send({
-//                 status: false,
-//                 msg: "Please enter a valid Mobile Number"
-//             })
-//         }
-//         let existingPhone = await userModel.findOne({
-//             phone: phone
-//         })
-//         if (existingPhone) return res.status(400).send({
-//             status: false,
-//             msg: `${phone} already exists.`
-//         })
-//         updateDetails.phone = phone
-
-//         if (data.hasOwnProperty("address")) {
-//             if (!isValid(address.shipping.street)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter shipping street.'
-//             })
-//             updateDetails.address.shipping.street = address.shipping.street.trim()
-
-//             if (!isValid(address.shipping.city)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter shipping city.'
-//             })
-//             updateDetails.address.shipping.city = address.shipping.city.trim()
-
-//             if (!isValid(address.shipping.pincode)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter shipping pincode.'
-//             })
-//             updateDetails.address.shipping.pincode = address.shipping.pincode.trim()
-
-//             if (!isValid(address.billing.street)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter billing street.'
-//             })
-//             updateDetails.address.shipping.street = address.shipping.street.trim()
-
-//             if (!isValid(address.billing.city)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter billing city.'
-//             })
-//             updateDetails.address.shipping.city = address.shipping.city.trim()
-
-//             if (!isValid(address.billing.pincode)) return res.status(400).send({
-//                 status: false,
-//                 msg: 'Enter billing pincode.'
-//             })
-//             updateDetails.address.shipping.pincode = address.shipping.pincode.trim()
-
-//         }
-//         updateDetails.profileImage = uploadedFileURL
-
-
-//         const updateData = await userModel.findOneAndUpdate({
-//             _id: userId
-//         }, {
-//             $set: updateDetails
-//         }, {
-//             new: true
-//         })
-//         if (!updateData) return res.status(400).send({
-//             status: false,
-//             msg: 'Not Found'
-//         })
-
-//         return res.status(200).send({
-//             status: false,
-//             msg: 'Data Update Successfully',
-//             data: updateData
-//         })
-
-//     } catch (error) {
-//         res.status(500).send({
-//             status: false,
-//             message: error.message
-//         })
-
-//     }
-// }
-
-const updateUser = async (req, res) => {
+const updateUser = async function (req, res) {
     try {
-        let userId = req.params.userId
-        const data = req.body
-        // let userId = req.decodeToken.userId
-
-        if(!isValidObjectId(userId)) {
-            return res.status(400).send({status: false, msg: `${userId} is invalid`})
+        const userId = req.params.userId;
+        if (!isValidObjectId(userId)) {
+            return res.status(400).send({
+                status: false,
+                msg: "Please enter a valid userId"
+            })
         }
 
-        if(!isValidRequestBody(data)) {
-            return res.status(400).send({status: false, msg: "Please provide updation details"})
+        const updateDetailsDetails = await userModel.findById(userId)
+        if (!updateDetailsDetails) {
+            return res.status(404).send({
+                status: false,
+                msg: "UserDetails not found"
+            })
+        }
+        if (userId != req.userId) return res.status(403).send({
+            status: false,
+            msg: "User not authorized to update details"
+        })
+
+        let data = JSON.stringify(req.body.body)
+        if (!data) {
+            return res.send({
+                status: false,
+                msg: "Nothing to Update"
+            })
+        }
+        let files = req.files
+        let uploadedFileURL
+        if (files && files.length > 0) {
+            uploadedFileURL = await uploadFile(files[0])
+        } else {
+            res.status(400).send({
+                msg: "No file found"
+            })
         }
 
-        const checkUser = await userModel.findOne({userId : userId})
-        if(!checkUser) return res.status(404).send({status: false, msg: "User not found"})
-
-
+        let updateDetails = {}
 
         let {
             fname,
             lname,
             email,
-            phone,
             password,
-            // address
+            phone,
+            address
         } = data
-        
-        let updateDetails = {}
 
-        if (isValid(fname)) {
-            updateDetails.fname = fname;
+        if (data.hasOwnProperty("fname")) {
+            if (!isValid(fname)) return res.status(400).send({
+                status: false,
+                msg: 'Enter fname.'
+            })
+            updateDetails["fname"] = fname.trim()
         }
 
-        if (!isValid(lname)) {
-            updateDetails.lname = lname;
+        if (data.hasOwnProperty("lname")) {
+            if (!isValid(lname)) return res.status(400).send({
+                status: false,
+                msg: 'Enter lname.'
+            })
+            updateDetails.lname = lname.trim()
         }
 
-        // if (!isValid(email)) {
-        //     if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
-        //         return res.status(400).send({status: false, msg: "Email not valid"})
-        //     }
+        if (data.hasOwnProperty("email")) {
+            if (!isValid(email)) return res.status(400).send({
+                status: false,
+                msg: 'Enter email.'
+            })
 
-        //     let checkEmailInDB = await userModel.findOne({email : email})
-        //     if (checkEmailInDB) return res.status(400).send({status: false, msg: `${email} already exists.`})  
-                
-        // }
-        // updateDetails.email = email;
-
-        if (`${phone}`.length < 10 && `${phone}`.length > 10) {
-
-        if (!isValid(phone)) {
-            if (!(/^[6-9]\d{9}$/.test(phone))) {
-                return res.status(400).send({status: false, msg: "Phone number is not valid"})
-            }
-
-            let checkPhoneInDB = await userModel.findOne({phone : phone})
-            if (checkPhoneInDB) return res.status(400).send({status: false, msg: `${phone} already exists.`})  
-                
         }
-        updateDetails.phone = phone;
-
-        if (!isValid(password)) {
-            updateDetails.password = password;
-        }
-
-        
-        console.log(updateDetails)
-        await updateDetails.save();
-        res.status(200).send({
-            status: true,
-            message: "Update succesful",
-            data: updateDetails
+        if (!isValid(email)) return res.status(400).send({
+            status: false,
+            msg: 'Enter email.'
         })
-    }
+    
+        if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
+            return res.status(400).send({
+                status: false,
+                msg: "Please enter a valid email address"
+            })
+        }
+        let existingEmail = await userModel.findOne({
+            email: email
+        })
+        if (existingEmail) return res.status(400).send({
+            status: false,
+            msg: `${email} already exists.`
+        })
+        updateDetails.email = email.trim()
+
+        if (data.hasOwnProperty("password")) {
+            if (!isValid(password)) return res.status(400).send({
+                status: false,
+                msg: 'Enter password.'
+            })
+        }
+        if (!(`${password}`.length <= 15 && `${password}`.length >= 8)) {
+            return res.status(400).send({
+                status: false,
+                msg: "Please enter password length from 8 to 15"
+            })
+        }
+        data.password = await bcrypt.hash(password, 10)
+        updateDetails.password = password
+
+
+        if (data.hasOwnProperty("phone")) {
+            if (!isValid(phone)) return res.status(400).send({
+                status: false,
+                msg: 'Enter phone.'
+            })
+        }
+
+        // if (`${phone}`.length < 10 && `${phone}`.length > 10) {
+        if (!(/^[6-9]\d{9}$/.test(phone))) {
+            return res.status(400).send({
+                status: false,
+                msg: "Please enter a valid Mobile Number"
+            })
+        }
+        let existingPhone = await userModel.findOne({
+            phone: phone
+        })
+        if (existingPhone) return res.status(400).send({
+            status: false,
+            msg: `${phone} already exists.`
+        })
+        updateDetails.phone = phone
+
+        if (data.hasOwnProperty("address")) {
+            if (!isValid(address.shipping.street)) return res.status(400).send({
+                status: false,
+                msg: 'Enter shipping street.'
+            })
+            updateDetails.address.shipping.street = address.shipping.street.trim()
+
+            if (!isValid(address.shipping.city)) return res.status(400).send({
+                status: false,
+                msg: 'Enter shipping city.'
+            })
+            updateDetails.address.shipping.city = address.shipping.city.trim()
+
+            if (!isValid(address.shipping.pincode)) return res.status(400).send({
+                status: false,
+                msg: 'Enter shipping pincode.'
+            })
+            updateDetails.address.shipping.pincode = address.shipping.pincode.trim()
+
+            if (!isValid(address.billing.street)) return res.status(400).send({
+                status: false,
+                msg: 'Enter billing street.'
+            })
+            updateDetails.address.shipping.street = address.shipping.street.trim()
+
+            if (!isValid(address.billing.city)) return res.status(400).send({
+                status: false,
+                msg: 'Enter billing city.'
+            })
+            updateDetails.address.shipping.city = address.shipping.city.trim()
+
+            if (!isValid(address.billing.pincode)) return res.status(400).send({
+                status: false,
+                msg: 'Enter billing pincode.'
+            })
+            updateDetails.address.shipping.pincode = address.shipping.pincode.trim()
+
+        }
+        updateDetails.profileImage = uploadedFileURL
+
+
+        const updateData = await userModel.findOneAndUpdate({
+            _id: userId
+        }, {
+            $set: updateDetails
+        }, {
+            new: true
+        })
+        if (!updateData) return res.status(400).send({
+            status: false,
+            msg: 'Not Found'
+        })
+
+        return res.status(200).send({
+            status: false,
+            msg: 'Data Update Successfully',
+            data: updateData
+        })
+
     } catch (error) {
-        return res.status(500).send({
+        res.status(500).send({
             status: false,
             message: error.message
         })
