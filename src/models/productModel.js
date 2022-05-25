@@ -18,19 +18,18 @@ const productSchema = new mongoose.Schema({
         trim: true
     },
     currencyId: {
-        type: String,
+        type: String, //INR
         required: true,
         trim: true
     },
     currencyFormat: {
-        type: String,
+        type: String,  //₹ (Rupee Symbol)
         required: true,
         trim: true
     },
     isFreeShipping: {
         type: Boolean,
-        default: false,
-        trim: true
+        default: false
     },
     productImage: {
         type: String,

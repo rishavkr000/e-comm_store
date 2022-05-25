@@ -1,6 +1,6 @@
 const productModel = require("../models/productModel")
 const {uploadFile} = require('../utils/aws')
-const {isValid,isValidRequestBody} = require("../utils/validator")
+const {isValid,isValidRequestBody, isValidObjectId} = require("../utils/validator")
 
 
 
@@ -49,7 +49,7 @@ const getProductById = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please enter a valid productId" })
         }
 
-        const findProduct = await productModel.findById(productId)
+        const findProduct = await productModel.findOne({_id: productId, isDeleted: false})
 
         if(!findProduct) return res.status(404).send({ status: false, msg: "Product not found" })
         res.status(200).send({ status: true, data: findProduct })
@@ -60,4 +60,36 @@ const getProductById = async function (req, res) {
     }
 }
 
-module.exports = { postProducts, getProductById}
+
+const updateProduct = async function (req, res) {
+    try {
+
+    }
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message })
+    }
+}
+
+
+const deleteProduct = async function (req, res) {
+    try {
+        const productId = req.params.productId
+
+        if (!isValidObjectId(productId)) {
+            return res.status(400).send({ status: false, msg: "Please enter a valid productId" })
+        }
+
+        const findProduct = await productModel.findOne({_id: productId, isDeleted: false})
+        if(!findProduct) return res.status(404).send({status: false, msg : "Product not found"})
+
+        let deletedProduct = await productModel.findOneAndUpdate({_id:productId}, {$set:{isDeleted:true, deletedAt: new Date()}},{new:true})
+        res.status(200).send({ status: true, message: " Product Deleted Successfully", data: deletedProduct })
+
+    }
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message })
+    }
+}
+
+
+module.exports = { postProducts, getProductById, updateProduct, deleteProduct}
