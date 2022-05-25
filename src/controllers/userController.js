@@ -480,14 +480,9 @@ const updateUser = async function (req, res) {
 
 
 
-<<<<<<< HEAD
-
-module.exports = { postRegister, loginUser, profileDetails, updateUser}
-=======
 module.exports = {
     postRegister,
     loginUser,
     profileDetails,
     updateUser
 }
->>>>>>> f09107a84173ac14301e176d3495047a20b8a475
