@@ -9,7 +9,7 @@ const { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidPincod
 
 //*************************************************< User Registration >*****************************************************//
 
-const postRegister = async function (req, res) {
+const createUser = async function (req, res) {
     try {
         let data = req.body
 
@@ -320,4 +320,4 @@ const updateUser = async function (req, res) {
     }
 }
 
-module.exports = { postRegister, loginUser, profileDetails, updateUser }
+module.exports = { createUser, loginUser, profileDetails, updateUser }
