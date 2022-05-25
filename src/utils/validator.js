@@ -16,7 +16,7 @@ const isValidObjectId = function(objectId){
 }
 
 const isValidName =function (name) {
-    let validNameRegex = /^[a-zA-Z ]*$/
+    let validNameRegex = /^[#.a-zA-Z\s,-]+$/
     return validNameRegex.test(name);
 }
 
