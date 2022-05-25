@@ -5,9 +5,9 @@ const {isValid,isValidRequestBody, isValidObjectId} = require("../utils/validato
 
 
 
-const postProducts = async function (req, res) {
+const createProduct = async function (req, res) {
     try {
-        let data = JSON.parse(JSON.stringify(req.body))
+        let data = req.body
         if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter details for user creation.' })
 
         let files = req.files
@@ -18,25 +18,49 @@ const postProducts = async function (req, res) {
         else {
             res.status(400).send({ msg: "Provide Product Image" })
         }
-        data.productImage = uploadedFileURL
+        // data.productImage = uploadedFileURL
+        const productImageUrl = await uploadFile(files[0])
+        let { 
+            title,
+            description,
+            price,
+            currencyId,
+            currencyFormat,
+            isFreeShipping,
+            style,
+            availableSizes,
+            installments
+        } = data
 
-
-        if (!isValid(data.title)) return res.status(400).send({ status: false, msg: "Enter Title" })
-        let usedTitle = await productModel.findOne({ title: data.title })
+        if (!isValid(title)) return res.status(400).send({ status: false, msg: "Enter Title" })
+        let usedTitle = await productModel.findOne({ title: title })
         if (usedTitle) return res.status(400).send({ status: false, msg: "Title already Present" })
-        if (!isValid(data.description)) return res.status(400).send({ status: false, msg: "Enter description" })
-        if (data.price < 0) return res.status(400).send({ status: false, msg: "Bad Price" })
-        if (!(/INR/.test(data.currencyId))) return res.status(400).send({ status: false, msg: "Bad CurrencyId" })
-        if (!(/₹/.test(data.currencyFormat))) return res.status(400).send({ status: false, msg: "Bad CurrencyFormat" })
-        if (data.availableSizes.length <= 0) return res.status(400).send({ status: false, msg: "Add Sizes" })
-        if (data.installments < 0) return res.status(400).send({ status: false, msg: "Bad Installments Field" })
+        if (!isValid(description)) return res.status(400).send({ status: false, msg: "Enter description" })
+        if (!isValid(price)) return res.status(400).send({ status: false, msg: "Enter Price" })
+        if (price < 0) return res.status(400).send({ status: false, msg: "Bad Price" })
+        if (!(/INR/.test(currencyId))) return res.status(400).send({ status: false, msg: "Bad CurrencyId" })
+        if (!(/₹/.test(currencyFormat))) return res.status(400).send({ status: false, msg: "Bad CurrencyFormat" })
+        if (availableSizes <= 0) return res.status(400).send({ status: false, msg: "Add Sizes" })
+        if (installments < 0) return res.status(400).send({ status: false, msg: "Bad Installments Field" })
 
-
-        let created = await productModel.create(data)
+        let result = {
+            title,
+            description,
+            price,
+            currencyId,
+            currencyFormat,
+            isFreeShipping,
+            style,
+            availableSizes,
+            installments,
+            productImage: productImageUrl
+        }
+        
+        let created = await productModel.create(result)
         res.status(201).send({ status: true, msg: "Success", data: created })
 
-
-    } catch (err) {
+    } 
+    catch (err) {
         res.status(500).send({ status: false, msg: err.message })
     }
 }
@@ -101,4 +125,4 @@ const deleteProductById = async function (req, res) {
 }
 
 
-module.exports = {postProducts, getProduct, getProductById, updateProduct, deleteProductById}
+module.exports = {createProduct, getProduct, getProductById, updateProduct, deleteProductById}
