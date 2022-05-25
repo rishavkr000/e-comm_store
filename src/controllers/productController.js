@@ -41,6 +41,15 @@ const postProducts = async function (req, res) {
     }
 }
 
+const getProduct = async function (req, res) {
+    try {
+
+    }
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message })
+    }
+}
+
 const getProductById = async function (req, res) {
     try {
         const productId = req.params.productId
@@ -71,7 +80,7 @@ const updateProduct = async function (req, res) {
 }
 
 
-const deleteProduct = async function (req, res) {
+const deleteProductById = async function (req, res) {
     try {
         const productId = req.params.productId
 
@@ -92,4 +101,4 @@ const deleteProduct = async function (req, res) {
 }
 
 
-module.exports = { postProducts, getProductById, updateProduct, deleteProduct}
+module.exports = {postProducts, getProduct, getProductById, updateProduct, deleteProductById}
