@@ -173,6 +173,8 @@ const profileDetails = async function (req, res) {
         if (!user) {
             return res.status(404).send({ status: false, msg: "User not Found" })
         }
+        if (userId != req.userId) return res.status(403).send({ status: false, msg: "User not authorized to update details" })
+
 
         res.status(200).send({ status: true, data: user })
     } catch (error) {
@@ -201,6 +203,9 @@ const updateUser = async function (req, res) {
         if (!checkUser) {
             return res.status(404).send({ status: false, message: "User Not Found" });
         }
+
+        if (userId != req.userId) return res.status(403).send({ status: false, msg: "User not authorized to update details" })
+
 
         let { fname, lname, email, password, phone, address } = data
 
@@ -288,9 +293,4 @@ const updateUser = async function (req, res) {
         }
 }
 
-module.exports = {
-    postRegister,
-    loginUser,
-    profileDetails,
-    updateUser
-}
+module.exports = {postRegister,loginUser,profileDetails,updateUser}
