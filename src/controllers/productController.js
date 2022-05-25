@@ -80,4 +80,23 @@ const postProducts = async function (req, res) {
     }
 }
 
-module.exports = { postProducts }
+const getProductById = async function (req, res) {
+    try {
+        const productId = req.params.productId
+
+        if (!isValidObjectId(productId)) {
+            return res.status(400).send({ status: false, msg: "Please enter a valid productId" })
+        }
+
+        const findProduct = await productModel.findById(productId)
+
+        if(!findProduct) return res.status(404).send({ status: false, msg: "Product not found" })
+        res.status(200).send({ status: true, data: findProduct })
+
+    }
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message })
+    }
+}
+
+module.exports = { postProducts, getProductById}
