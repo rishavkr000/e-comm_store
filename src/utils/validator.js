@@ -32,6 +32,7 @@ const isValidPhoneNumber = function (number) {
 const isValidPincode = function (pincode) {
     let pincodeRegex = /^[0-9]{6}$/;
     return pincodeRegex.test(pincode);
+<<<<<<< HEAD
 }
 
 let isValidPassword = function (password) {
@@ -41,3 +42,10 @@ let isValidPassword = function (password) {
 
 
 module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode, isValidPassword}
+=======
+}
+
+
+
+module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode}
+>>>>>>> 87edd36eb630433a940ffeee4b24aff332c6848f
