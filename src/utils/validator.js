@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const P = require('pincode-validator');
 
 const isValid = function (value) {
     if (typeof value === 'undefined' || value === null) return false //it checks whether the value is null or undefined.
@@ -14,8 +15,25 @@ const isValidObjectId = function(objectId){
     return mongoose.Types.ObjectId.isValid(objectId);
 }
 
+const isValidName =function (name) {
+    let validNameRegex = /^[a-zA-Z ]*$/
+    return validNameRegex.test(name);
+}
+
+const isValidEmail = function (email) {
+    let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    return emailRegex.test(email)
+}
+ 
+const isValidPhoneNumber = function (number) {
+    let phoneRegex = /^[6-9]\d{9}$/;
+    return phoneRegex.test(number);
+}
+
+const isValidPincode = function (number) {
+    let pincodeRegex = /^[1-9]{1}[0-9]{2}\\s{0,1}[0-9]{3}$/;
+    return pincodeRegex.test(number);
+}
 
 
-
-
-module.exports = { isValid, isValidRequestBody,isValidObjectId}
+module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode}
