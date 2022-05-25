@@ -41,7 +41,6 @@ let uploadFile = async (file) => {
                     "error": err
                 })
             }
-            console.log(data)
             console.log("file uploaded succesfully")
             return resolve(data.Location)
         })
@@ -512,7 +511,7 @@ const updateUser = async (req, res) => {
             return res.status(400).send({status: false, msg: "Please provide updation details"})
         }
 
-        const checkUser = await userModel.findById(userId)
+        const checkUser = await userModel.findOne({userId : userId})
         if(!checkUser) return res.status(404).send({status: false, msg: "User not found"})
 
 
@@ -528,8 +527,6 @@ const updateUser = async (req, res) => {
         
         let updateDetails = {}
 
-
-
         if (isValid(fname)) {
             updateDetails.fname = fname;
         }
@@ -538,16 +535,16 @@ const updateUser = async (req, res) => {
             updateDetails.lname = lname;
         }
 
-        if (!isValid(email)) {
-            // if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
-            //     return res.status(400).send({status: false, msg: "Email not valid"})
-            // }
+        // if (!isValid(email)) {
+        //     if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
+        //         return res.status(400).send({status: false, msg: "Email not valid"})
+        //     }
 
-            let checkEmailInDB = await userModel.findOne({email : email})
-            if (checkEmailInDB) return res.status(400).send({status: false, msg: `${email} already exists.`})  
+        //     let checkEmailInDB = await userModel.findOne({email : email})
+        //     if (checkEmailInDB) return res.status(400).send({status: false, msg: `${email} already exists.`})  
                 
-        }
-        updateDetails.email = email;
+        // }
+        // updateDetails.email = email;
 
         if (`${phone}`.length < 10 && `${phone}`.length > 10) {
 
