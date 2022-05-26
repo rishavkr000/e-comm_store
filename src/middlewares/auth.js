@@ -11,7 +11,7 @@ const authentication = async function (req, res, next) {
 
         let decodedToken = jwt.verify(token, "functionUp-Uranium");
         if (!decodedToken)
-            return res.status(400).send({ status: false, message: "Inter valid token" });
+            return res.status(400).send({ status: false, message: "Enter a valid token" });
         
         req.userId = decodedToken.userId
 

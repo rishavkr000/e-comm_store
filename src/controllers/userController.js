@@ -177,7 +177,7 @@ const profileDetails = async function (req, res) {
         if (!user) {
             return res.status(404).send({ status: false, msg: "User not Found" })
         }
-        if (userId != req.userId) return res.status(403).send({ status: false, msg: "User not authorized to update details" })
+        if (userId != req.userId) return res.status(403).send({ status: false, msg: "User not authorized" })
 
 
         res.status(200).send({ status: true, data: user })
@@ -239,7 +239,7 @@ const updateUser = async function (req, res) {
                 return res.status(400).send({ status: false, msg: "Password Should be minimum 8 characters and maximum 15 characters" })
             }
             password = await bcrypt.hash(password, 10)
-            checkUser.password = hashPassword;
+            checkUser.password = password;
         }
 
         if (isValid(phone)) {
