@@ -42,35 +42,32 @@ const createProduct = async function (req, res) {
 
         // if ((data.hasOwnProperty('style')) && !isValid(style)) return res.status(400).send({ status: false, msg: "Enter a Valid Product Style" })
 
-            if (!isValid(availableSizes)) return res.status(400).send({ status: false, msg: "Add Sizes" })
+        //     if (!isValid(availableSizes)) return res.status(400).send({ status: false, msg: "Add Sizes" })
 
-        //    availableSizes = JSON.parse(availableSizes)
+        // //    availableSizes = JSON.parse(availableSizes)
 
-            if (!Array.isArray(availableSizes) || availableSizes.length === 0) {
-                return res.status(400).send({ status: false, msg: 'size should be in array like; ["S", "XS", "M", "X", "L", "XXL", "XL"] ' })
-            }
+        //     if (!Array.isArray(availableSizes) || availableSizes.length === 0) {
+        //         return res.status(400).send({ status: false, msg: 'size should be in array like; ["S", "XS", "M", "X", "L", "XXL", "XL"] ' })
+        //     }
 
-            // var arr = availableSizes.split(",").map((s) => s.trim())
-            for (let i = 0; i < availableSizes.length; i++) {
-                if (!["S","XS","M","X","L","XXL","XL"].includes(availableSizes[i])) {
-                    return res.status(400).send({ status: false, msg: 'Size should be: "S", "XS", "M", "X", "L", "XXL", "XL" ' })
+        //     // var arr = availableSizes.split(",").map((s) => s.trim())
+        //     for (let i = 0; i < availableSizes.length; i++) {
+        //         if (!["S","XS","M","X","L","XXL","XL"].includes(availableSizes[i])) {
+        //             return res.status(400).send({ status: false, msg: 'Size should be: "S", "XS", "M", "X", "L", "XXL", "XL" ' })
 
+        if (!isValid(availableSizes)) return res.status(400).send({ status: false, msg: "Add Sizes" })
+        if (availableSizes) {
+            let arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+            var arr2 = availableSizes.toUpperCase().split(",").map((s) => s.trim())
+            for (let i = 0; i < arr2.length; i++) {
+                if (!arr1.includes(arr2[i])) {
+                    return res.status(400).send({ status: false, message: "availableSizes must be [S, XS, M, X, L, XXL, XL]" });
                 }
             }
+        }
 
-            // let arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-            // var arr2 = availableSizes.toUpperCase().split(",").map((s) => s.trim())
-            // console.log(arr2)
-            // for (let i = 0; i < arr2.length; i++) {
-            //     if (!arr1.includes(arr2[i])) {
-            //         return res.status(400).send({ status: false, message: "availableSizes must be [S, XS, M, X, L, XXL, XL]" });
-            //     }
-            // }
-
-        // if (installments) {
-            if (!isValid(installments)) return res.status(400).send({ status: false, msg: "Enter installments" })
-            if (isValidInstallment(installments)) return res.status(400).send({ status: false, msg: "Bad installments field" })
-        // }
+        if (!isValid(installments)) return res.status(400).send({ status: false, msg: "Enter installments" })
+        if (!isValidInstallment(installments)) return res.status(400).send({ status: false, msg: "Bad installments field" })
 
         if (!checkImage(files[0].originalname))
             return res.status(400).send({ status: false, message: "format must be jpeg/jpg/png only" })
@@ -83,7 +80,8 @@ const createProduct = async function (req, res) {
         let created = await productModel.create(result)
         res.status(201).send({ status: true, msg: "Success", data: created })
 
-    }
+    
+}
     catch (err) {
         res.status(500).send({ status: false, msg: err.message })
     }
@@ -93,39 +91,50 @@ const createProduct = async function (req, res) {
 const getProduct = async function (req, res) {
     try {
         const queryParams = req.query;
-        const filter = { isDeleted: false, deletedAt: null };
-        // if (Object.keys(queryParams).length !== 0) {
+        const filter = { isDeleted: false };
 
-        const { size, name, priceGreaterThan, priceLessThan } = queryParams
+        const { size, name, priceGreaterThan, priceLessThan, priceSort } = queryParams
 
-        if (isValid(size)) {
-            if (Array.isArray(size) && size.length > 0) {
-                for (let i = 0; i < size.length; i++) {
-                    if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(size[i])) {
-                        return res.status(400).send({ status: false, msg: 'Size should be: "S", "XS", "M", "X", "L", "XXL", "XL" ' })
+        if (Object.keys(queryParams).length !== 0) {
 
+            if (isValid(size)) {
+                if (Array.isArray(size) && size.length > 0) {
+                    for (let i = 0; i < size.length; i++) {
+                        if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(size[i])) {
+                            res.status(400).send({ status: false, msg: 'Size should be: "S", "XS", "M", "X", "L", "XXL", "XL" ' })
+                        }
                     }
-                }
-                filter.availableSizes = size
-            } else {
-                return res.status(400).send({ status: false, msg: 'size should be in array like; ["S", "XS", "M", "X", "L", "XXL", "XL"] ' })
+                    filter['availableSizes'] = size
+                } else {
+                    res.status(400).send({ status: false, msg: 'size should be in array like; ["S", "XS", "M", "X", "L", "XXL", "XL"] ' })
 
+                }
+            }
+
+            if (isValid(name)) {
+                const regexName = new RegExp(name, "i")
+                filter.title = { $regex: regexName }
+            }
+
+            if (priceGreaterThan) {
+                if(!isValid(priceGreaterThan)){
+                    filter.price = { $gt: priceGreaterThan }
+                }
+            }
+            if (priceLessThan) {
+                if(!isValid(priceLessThan)){
+                    filter.price = { $lt: priceLessThan }
+                }
+            }
+            if (priceSort) {
+                    if(!(priceSort == 1 || priceSort == -1))
+                        return res.status(400).send({status: false, msg: "Price sort by the value 1 and -1 only"})
             }
         }
-        if (isValid(name)) {
-            const regexName = new RegExp(name, "i")
-            filter.title = { $regex: regexName }
-        }
+        
 
-        if (priceGreaterThan) {
-            filter.price = { $gt: priceGreaterThan }
-        }
-        if (priceLessThan) {
-            filter.price = { $lt: priceLessThan }
-        }
-
-        const getProductDetails = await productModel.find(filter).sort({ price: 1 })
-        res.status(200).send({ status: true, msg: "Prodect Details Find Successsully", data: getProductDetails })
+        const getProductDetails = await productModel.find(filter).sort({ price: priceSort })
+        res.status(200).send({ status: true, msg: "Prodect Details find Successsully", data: getProductDetails })
     }
     catch (err) {
         res.status(500).send({ status: false, msg: err.message })
