@@ -83,16 +83,24 @@ const createProduct = async function (req, res) {
             msg: "Add Sizes"
         })
         if (availableSizes) {
-            let arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+            // for (let i = 0; i < availableSizes.length; i++){
+            //     if()
+            // }
+            var arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
             var arr2 = availableSizes.toUpperCase().split(",").map((s) => s.trim())
+            console.log(arr2)
             for (let i = 0; i < arr2.length; i++) {
-                if (!arr1.includes(arr2[i])) {
+                // for(let j = i; j < arr2.length; j++){
+                if (!(arr1.includes(arr2[i]))) {
+
                     return res.status(400).send({
                         status: false,
                         message: "availableSizes must be [S, XS, M, X, L, XXL, XL]"
                     });
-                }
+                
             }
+            }
+
         }
 
         if (!isValid(installments)) return res.status(400).send({
