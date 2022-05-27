@@ -93,9 +93,9 @@ const getProduct = async function (req, res) {
         const queryParams = req.query;
         const filter = { isDeleted: false };
 
-        if (Object.keys(queryParams).length !== 0) {
+        const { size, name, priceGreaterThan, priceLessThan, priceSort } = queryParams
 
-            const { size, name, priceGreaterThan, priceLessThan, priceSort } = queryParams
+        if (Object.keys(queryParams).length !== 0) {
 
             if (isValid(size)) {
                 if (Array.isArray(size) && size.length > 0) {
@@ -110,6 +110,7 @@ const getProduct = async function (req, res) {
 
                 }
             }
+
             if (isValid(name)) {
                 const regexName = new RegExp(name, "i")
                 filter.title = { $regex: regexName }
@@ -125,11 +126,9 @@ const getProduct = async function (req, res) {
                     filter.price = { $lt: priceLessThan }
                 }
             }
-            if(priceSort) {
-                if(!isValid(priceSort)) {
+            if (priceSort) {
                     if(!(priceSort == 1 || priceSort == -1))
                         return res.status(400).send({status: false, msg: "Price sort by the value 1 and -1 only"})
-                }
             }
         }
         
