@@ -1,13 +1,11 @@
 const productModel = require("../models/productModel")
 const { uploadFile } = require('../utils/aws')
-const { isValid, isValidRequestBody, isValidObjectId } = require("../utils/validator")
-
-
+const { isValid, isValidRequestBody, isValidObjectId, checkImage, titleCheck, isValidPrice, isValidInstallment } = require("../utils/validator")
 
 
 const createProduct = async function (req, res) {
     try {
-        let data = req.body
+        let data = JSON.parse(JSON.stringify(req.body));
         if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter details for user creation.' })
 
         let files = req.files
@@ -18,7 +16,7 @@ const createProduct = async function (req, res) {
         else {
             res.status(400).send({ msg: "Provide Product Image" })
         }
-        // data.productImage = uploadedFileURL
+        
         const productImageUrl = await uploadFile(files[0])
         let {
             title,
@@ -33,15 +31,40 @@ const createProduct = async function (req, res) {
         } = data
 
         if (!isValid(title)) return res.status(400).send({ status: false, msg: "Enter Title" })
+        if (!titleCheck(title)) return res.status(400).send({ status: false, msg: "Enter Title is not valid" })
         let usedTitle = await productModel.findOne({ title: title })
         if (usedTitle) return res.status(400).send({ status: false, msg: "Title already Present" })
+
         if (!isValid(description)) return res.status(400).send({ status: false, msg: "Enter description" })
+
         if (!isValid(price)) return res.status(400).send({ status: false, msg: "Enter Price" })
-        if (price < 0) return res.status(400).send({ status: false, msg: "Bad Price" })
+        if (isValidPrice(price)) return res.status(400).send({ status: false, msg: "Bad Price" })
+
+        if (!isValid(currencyId)) return res.status(400).send({ status: false, msg: "Enter Currency Id" })
         if (!(/INR/.test(currencyId))) return res.status(400).send({ status: false, msg: "Bad CurrencyId" })
+
+        if (!isValid(currencyFormat)) return res.status(400).send({ status: false, msg: "Enter Currency Format" })
         if (!(/₹/.test(currencyFormat))) return res.status(400).send({ status: false, msg: "Bad CurrencyFormat" })
-        if (availableSizes <= 0) return res.status(400).send({ status: false, msg: "Add Sizes" })
-        if (installments < 0) return res.status(400).send({ status: false, msg: "Bad Installments Field" })
+
+        if (isValid(isFreeShipping) && !['true','false'].includes(isFreeShipping)) return res.status(400).send({ status: false, msg: "isFreeShipping must be boolean value" })
+
+        if (!isValid(availableSizes)) return res.status(400).send({ status: false, msg: "Add Sizes" })
+        if (availableSizes) {
+            let arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+            var arr2 = availableSizes.toUpperCase().split(",").map((s) => s.trim())
+            console.log(arr2)
+            for (let i = 0; i < arr2.length; i++) {
+                if (!arr1.includes(arr2[i])) {
+                    return res.status(400).send({ status: false, message: "availableSizes must be [S, XS, M, X, L, XXL, XL]" });
+                }
+            }
+        }
+
+        if (!isValid(installments)) return res.status(400).send({ status: false, msg: "Enter installments" })
+        if (isValidInstallment(installments)) return res.status(400).send({ status: false, msg: "Bad installments field" })
+
+        if (!checkImage(files[0].originalname))
+            return res.status(400).send({ status: false, message: "format must be jpeg/jpg/png only" })
 
         let result = {
             title,
@@ -51,7 +74,7 @@ const createProduct = async function (req, res) {
             currencyFormat,
             isFreeShipping,
             style,
-            availableSizes,
+            availableSizes : arr2,
             installments,
             productImage: productImageUrl
         }
@@ -102,7 +125,6 @@ const getProduct = async function (req, res) {
 
         const getProductDetails = await productModel.find(filter).sort({ price: 1 })
         res.status(200).send({ status: true, msg: "Prodect Details Find Successsully", data: getProductDetails })
-    
     }
     catch (err) {
         res.status(500).send({ status: false, msg: err.message })

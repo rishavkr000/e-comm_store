@@ -34,6 +34,26 @@ const isValidPincode = function (pincode) {
     return pincodeRegex.test(pincode);
 }
 
+const isValidPrice = function (pincode) {
+    let priceRegex = /^\d{0,8}(\.\d{1,4})?$/;
+    return priceRegex.test(pincode);
+}
+
+let checkImage = (img) => {
+    let imageRegex = /(jpeg|png|jpg)$/
+    return imageRegex.test(img)
+}
+
+let titleCheck = (string) => {
+    let titleRegex = /^[#.a-zA-Z0-9\s,-]+$/
+    return titleRegex.test(string)
+}
+
+let isValidInstallment = (num) => {
+    let installmentsRegex = /^[0-9]{1,2}$/
+    return installmentsRegex.test(string)
+}
 
 
-module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode}
+
+module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode, isValidPrice, checkImage, titleCheck, isValidInstallment }
