@@ -37,8 +37,8 @@ const createProduct = async function (req, res) {
 
         if (!isValid(description)) return res.status(400).send({ status: false, msg: "Enter description" })
 
-        if (!isValid(price)) return res.status(400).send({ status: false, msg: "Enter Price" })
-        if (isValidPrice(price)) return res.status(400).send({ status: false, msg: "Bad Price" })
+       //if (!isValid(price)) return res.status(400).send({ status: false, msg: "Enter Price" })
+        //if (!isValidPrice(price)) return res.status(400).send({ status: false, msg: "Bad Price" })
 
         if (!isValid(currencyId)) return res.status(400).send({ status: false, msg: "Enter Currency Id" })
         if (!(/INR/.test(currencyId))) return res.status(400).send({ status: false, msg: "Bad CurrencyId" })
@@ -61,7 +61,7 @@ const createProduct = async function (req, res) {
         }
 
         if (!isValid(installments)) return res.status(400).send({ status: false, msg: "Enter installments" })
-        if (isValidInstallment(installments)) return res.status(400).send({ status: false, msg: "Bad installments field" })
+        if (!isValidInstallment(installments)) return res.status(400).send({ status: false, msg: "Bad installments field" })
 
         if (!checkImage(files[0].originalname))
             return res.status(400).send({ status: false, message: "format must be jpeg/jpg/png only" })
