@@ -112,7 +112,8 @@ const getProduct = async function (req, res) {
             }
         }
         if (isValid(name)) {
-            filter.title = { $regex: name }
+            const regexName = new RegExp(name, "i")
+            filter.title = { $regex: regexName }
         }
 
         if (priceGreaterThan) {
