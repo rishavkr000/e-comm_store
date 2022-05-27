@@ -111,7 +111,8 @@ const getProduct = async function (req, res) {
                 }
             }
             if (isValid(name)) {
-                filter.title = { $regex: name }
+                const regexName = new RegExp(name, "i")
+                filter.title = { $regex: regexName }
             }
 
             if (priceGreaterThan) {
@@ -131,6 +132,7 @@ const getProduct = async function (req, res) {
                 }
             }
         }
+        
 
         const getProductDetails = await productModel.find(filter).sort({ price: priceSort })
         res.status(200).send({ status: true, msg: "Prodect Details find Successsully", data: getProductDetails })
