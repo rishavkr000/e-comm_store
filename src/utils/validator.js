@@ -34,9 +34,9 @@ const isValidPincode = function (pincode) {
     return pincodeRegex.test(pincode);
 }
 
-const isValidPrice = function (pincode) {
-    let priceRegex = /^\d{0,8}(\.\d{1,4})?$/;
-    return priceRegex.test(pincode);
+const isValidPrice = function (price) {
+    let priceRegex = /^\d+(\.\d{1,2})?$/;
+    return priceRegex.test(price);
 }
 
 let checkImage = (img) => {
