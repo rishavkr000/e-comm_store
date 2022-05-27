@@ -1,19 +1,17 @@
-const jwt = require("jsonwebtoken");
-// const userModel = require("../models/userModel")
-
+const jwt = require("jsonwebtoken")
 
 const authentication = async function (req, res, next) {
     try {
         let bearerToken = req.headers["authorization"];
         if (!bearerToken) token = req.headers["Authorization"]
         if (!bearerToken)
-            return res.status(400).send({ status: false, message: "Token required! Please login to generate token" });
-console.log(bearerToken)
+        return res.status(400).send({ status: false, message: "Token required! Please login to generate token" });
+       
         const token = bearerToken.split(" ")[1]
-      console.log(token)
+
         let decodedToken = jwt.verify(token, "functionUp-Uranium");
         if (!decodedToken)
-            return res.status(400).send({ status: false, message: "Inter valid token" });
+            return res.status(400).send({ status: false, message: "Enter a valid token" });
         
         req.userId = decodedToken.userId
 
