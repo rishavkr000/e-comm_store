@@ -11,6 +11,9 @@ const {
 } = require("../utils/validator")
 
 
+// ============== POST / Create Poduct =======================//
+
+
 const createProduct = async function (req, res) {
     try {
         let data = JSON.parse(JSON.stringify(req.body));
@@ -83,24 +86,18 @@ const createProduct = async function (req, res) {
             msg: "Add Sizes"
         })
         if (availableSizes) {
-            // for (let i = 0; i < availableSizes.length; i++){
-            //     if()
-            // }
             var arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
             var arr2 = availableSizes.toUpperCase().split(",").map((s) => s.trim())
             console.log(arr2)
             for (let i = 0; i < arr2.length; i++) {
-                // for(let j = i; j < arr2.length; j++){
                 if (!(arr1.includes(arr2[i]))) {
-
-                    return res.status(400).send({
+                        return res.status(400).send({
                         status: false,
                         message: "availableSizes must be [S, XS, M, X, L, XXL, XL]"
                     });
                 
+                }
             }
-            }
-
         }
 
         if (!isValid(installments)) return res.status(400).send({
@@ -145,6 +142,10 @@ const createProduct = async function (req, res) {
         })
     }
 }
+
+
+// ============== GET / Get Poduct using filter =======================//
+
 
 
 const getProduct = async function (req, res) {
@@ -232,6 +233,9 @@ const getProduct = async function (req, res) {
 }
 
 
+// ============== GET / Get Poduct by product Id =======================//
+
+
 
 const getProductById = async function (req, res) {
     try {
@@ -265,6 +269,10 @@ const getProductById = async function (req, res) {
         })
     }
 }
+
+
+// ============== PUT / Update Poduct =======================//
+
 
 
 const updateProduct = async function (req, res) {
@@ -388,6 +396,9 @@ const updateProduct = async function (req, res) {
         })
     }
 }
+
+
+// ============== DELETE / Delete Poduct =======================//
 
 
 const deleteProductById = async function (req, res) {
