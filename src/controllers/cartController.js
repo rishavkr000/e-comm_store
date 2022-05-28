@@ -11,7 +11,7 @@ const postCart = async function (req, res) {
        
         let data = JSON.parse(JSON.stringify(req.body))
         
-        if(!isValid(data))return res.status(400).send({ status: false, msg: 'Enter cart details.'})
+        if(!isValidRequestBody(data))return res.status(400).send({ status: false, msg: 'Enter cart details.'})
         if(!isValid(data.userId))return res.status(400).send({ status: false, msg: 'Enter userId.'})
         if(!isValidObjectId(data.userId))return res.status(400).send({ status: false, msg: 'Enter valid ObjectId.' })
         if(!Object.keys(data.items).length>0)return res.status(400).send({ status: false, msg: 'Enter items.'})
