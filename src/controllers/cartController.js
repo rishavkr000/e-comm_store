@@ -11,13 +11,13 @@ const { isValidObjectId, isValid, isValidRequestBody } = require('../utils/valid
 const createCart = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, msg: 'Enter valid ObjectId.' })
+        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, msg: 'Enter valid User Id.' })
        
         let data = JSON.parse(JSON.stringify(req.body))
         
         if(!isValidRequestBody(data))return res.status(400).send({ status: false, msg: 'Enter cart details.'})
         if(!isValid(data.userId))return res.status(400).send({ status: false, msg: 'Enter userId.'})
-        if(!isValidObjectId(data.userId))return res.status(400).send({ status: false, msg: 'Enter valid ObjectId.' })
+        if(!isValidObjectId(data.userId))return res.status(400).send({ status: false, msg: 'Enter valid User Id.' })
         if(!Object.keys(data.items).length>0)return res.status(400).send({ status: false, msg: 'Enter items.'})
         
         data.items=JSON.parse(data.items)
@@ -25,7 +25,7 @@ const createCart = async function (req, res) {
         //data.totalItems=JSON.parse(data.totalItems)
         
         if(!isValid(data.items.productId))return res.status(400).send({ status: false, msg: 'Enter productId.'})  
-        if(!isValidObjectId(data.items.productId))return res.status(400).send({ status: false, msg: 'Enter valid ObjectId.' })
+        if(!isValidObjectId(data.items.productId))return res.status(400).send({ status: false, msg: 'Enter valid Product Id.' })
         if (!data.items.quantity > 0) return res.status(400).send({ status: false, msg: 'quantity must be minimum 1.' })
         if(!isValid(data.totalPrice))return res.status(400).send({ status: false, msg: 'Enter totalPrice.'})
         if(!isValid(data.totalItems))return res.status(400).send({ status: false, msg: 'Enter totalItems.'})
@@ -74,6 +74,16 @@ const updateCart = async (req, res) => {
 
 const getCart = async (req, res) => {
     try{
+        const userId = req.params.userId
+        if(!isValidObjectId(userId)) return res.status(400).send({status: false, msg: "Invalid User Id"})
+
+        const checkUser = await userModel.findOne({_id : userId})
+        if(!checkUser) return res.status(400).send({status: false, msg: "User does not exist"})
+
+        checkCart = await cartModel.findOne({ userId: userId }).select({ __v: 0 })
+        if (!checkCart) return res.status(404).send({ status: false, message: "Cart not found" })
+
+        res.status(200).send({ status: true, data: checkCart })
 
     }
     catch (error) {
