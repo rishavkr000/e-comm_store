@@ -35,7 +35,11 @@ const isValidPincode = function (pincode) {
 }
 
 const isValidPrice = function (price) {
+<<<<<<< HEAD
     let priceRegex = /^\d+(\.\d{1,2})?$/ 
+=======
+    let priceRegex = /^\d+(\.\d{1,2})?$/;
+>>>>>>> 80785bded4adcac6a8c787f64a2e9f6cc3dd2821
     return priceRegex.test(price);
 }
 
