@@ -4,7 +4,11 @@ const productModel = require('../models/productModel')
 
 const { isValidObjectId, isValid, isValidRequestBody } = require('../utils/validator')
 
-const postCart = async function (req, res) {
+
+// ============== POST / Create Cart =======================//
+
+
+const createCart = async function (req, res) {
     try {
         let userId = req.params.userId
         if (!isValidObjectId(userId)) return res.status(400).send({ status: false, msg: 'Enter valid ObjectId.' })
@@ -51,4 +55,47 @@ const postCart = async function (req, res) {
     }
 }
 
-module.exports = { postCart }
+
+// ============== PUT / Update Cart =======================//
+
+
+const updateCart = async (req, res) => {
+    try{
+
+    }
+    catch (error) {
+        res.status(500).send({ status: false, msg: error.message })
+    }
+}
+
+
+// ============== GET / Get Cart =======================//
+
+
+const getCart = async (req, res) => {
+    try{
+
+    }
+    catch (error) {
+        res.status(500).send({ status: false, msg: error.message })
+    }
+}
+
+
+
+// ============== DELETE / Delete Cart =======================//
+
+
+
+const deleteCart = async (req, res) => {
+    try{
+
+    }
+    catch (error) {
+        res.status(500).send({ status: false, msg: error.message })
+    }
+}
+
+
+
+module.exports = { createCart, updateCart, getCart, deleteCart }
