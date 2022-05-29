@@ -133,7 +133,7 @@ const loginUser = async function (req, res) {
         //Db call for checking user is valid user
         const user = await userModel.findOne({ email: email })
         if (!user) {
-            return res.status(404).send({ status: false, message: "Email is not correct" })
+            return res.status(404).send({ status: false, message: "User not found" })
         }
         const samePassword = await bcrypt.compare(password, user.password);
         if (!samePassword) {
