@@ -49,19 +49,14 @@ const createProduct = async function (req, res) {
 
         if (!isValid(description)) return res.status(400).send({ status: false, msg: "Enter description" })
 
-<<<<<<< HEAD
-       //if (!isValid(price)) return res.status(400).send({ status: false, msg: "Enter Price" })
-        //if (!isValidPrice(price)) return res.status(400).send({ status: false, msg: "Bad Price" })
-=======
-        if (!isValid(price)) return res.status(400).send({
-            status: false,
-            msg: "Enter Price"
-        })
-        if (!isValidPrice(price)) return res.status(400).send({
-            status: false,
-            msg: "Bad Price"
-        })
->>>>>>> 80785bded4adcac6a8c787f64a2e9f6cc3dd2821
+        // if (!isValid(price)) return res.status(400).send({
+        //     status: false,
+        //     msg: "Enter Price"
+        // })
+        // if (!isValidPrice(price)) return res.status(400).send({
+        //     status: false,
+        //     msg: "Bad Price"
+        // })
 
         if (!isValid(currencyId)) return res.status(400).send({
             status: false,
@@ -93,7 +88,7 @@ const createProduct = async function (req, res) {
         if (availableSizes) {
             var arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
             var arr2 = availableSizes.toUpperCase().split(",").map((s) => s.trim())
-            console.log(arr2)
+            //console.log(arr2)
             for (let i = 0; i < arr2.length; i++) {
                 if (!(arr1.includes(arr2[i]))) {
                         return res.status(400).send({
@@ -105,10 +100,6 @@ const createProduct = async function (req, res) {
             }
         }
 
-<<<<<<< HEAD
-        if (!isValid(installments)) return res.status(400).send({ status: false, msg: "Enter installments" })
-        if (!isValidInstallment(installments)) return res.status(400).send({ status: false, msg: "Bad installments field" })
-=======
         if (!isValid(installments)) return res.status(400).send({
             status: false,
             msg: "Enter installments"
@@ -117,7 +108,6 @@ const createProduct = async function (req, res) {
             status: false,
             msg: "Bad installments field"
         })
->>>>>>> 80785bded4adcac6a8c787f64a2e9f6cc3dd2821
 
         if (!checkImage(files[0].originalname))
             return res.status(400).send({
