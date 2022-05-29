@@ -20,10 +20,10 @@ router.put('/products/:productId', updateProduct)
 router.delete('/products/:productId', deleteProductById)
 
 // 3. Cart
-router.post('/users/:userId/cart', createCart)
-router.put('/users/:userId/cart', updateCart)
-router.get('/users/:userId/cart',  getCart)
-router.delete('/users/:userId/cart', deleteCart)
+router.post('/users/:userId/cart',authentication,createCart)
+router.put('/users/:userId/cart',authentication,updateCart)
+router.get('/users/:userId/cart',authentication,getCart)
+router.delete('/users/:userId/cart',authentication,deleteCart)
 
 
 

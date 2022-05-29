@@ -1,7 +1,6 @@
 const productModel = require("../models/productModel")
 const { uploadFile } = require('../utils/aws')
-const {
-    isValid,
+const {isValid,
     isValidRequestBody,
     isValidObjectId,
     checkImage,
