@@ -277,9 +277,7 @@ const updateUser = async function (req, res) {
                 else {
                     return res.status(400).send({ status: false, message: "shipping pincode is required" });
                 }
-            }
-
-            
+            } 
 
             if (isValid(billing)) {
 

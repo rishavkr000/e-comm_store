@@ -65,8 +65,6 @@ const createCart = async function (req, res) {
 
             }
         }
-
-
     }
     catch (error) {
         res.status(500).send({ status: false, msg: error.message })
@@ -166,7 +164,7 @@ const getCart = async (req, res) => {
         const checkUser = await userModel.findOne({ _id: userId })
         if (!checkUser) return res.status(400).send({ status: false, msg: "User does not exist" })
 
-        if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized to update details" })
+        if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized" })
 
         checkCart = await cartModel.findOne({ userId: userId }).select({ __v: 0 })
         if (!checkCart) return res.status(404).send({ status: false, message: "Cart not found" })
@@ -189,7 +187,7 @@ const deleteCart = async (req, res) => {
         const checkUser = await userModel.findOne({ userId })
         if (!checkUser) return res.status(404).send({ status: false, msg: "User does not exist" })
 
-        if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized to update details" })
+        if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized" })
 
         const findCart = await cartModel.findOne(userId)
         if (!findCart) {

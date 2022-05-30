@@ -129,8 +129,6 @@ const createProduct = async function (req, res) {
 
 // ============== GET / Get Poduct using filter =======================//
 
-
-
 const getProduct = async function (req, res) {
     try {
         const queryParams = req.query;
