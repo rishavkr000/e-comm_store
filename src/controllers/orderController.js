@@ -11,6 +11,8 @@ const createOrder = async function (req, res) {
     let findCart = await cartModel.findOne({ userId: userId });
     if(!findCart) return res.status(404).send({ status: false, message: `No cart found with this user-ID` })
 
+    if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized" })
+
     if(findCart.items.length == 0) return res.status(400).send({ status: false, message: "Cart is already empty" });
 
     let data = req.body;
