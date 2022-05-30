@@ -1,4 +1,5 @@
 const mongoose = require ('mongoose')
+const ObjectId = mongoose.Schema.Types.ObjectId
 
 
 const userSchema = new mongoose.Schema({
@@ -73,4 +74,14 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 })
 
-module.exports = mongoose.model('User', userSchema)
+const passwordSchema = new mongoose.Schema({
+    userId: {type: ObjectId, ref: 'User', required: true},
+    email: {type: String, required: true, trim: true, lowercase: true},
+    password: {type: String, required: true}
+})
+
+
+const userModel = mongoose.model('User', userSchema)//users
+const passwordModel = mongoose.model('Password', passwordSchema)//passwords
+
+module.exports = {userModel, passwordModel}

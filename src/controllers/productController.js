@@ -32,71 +32,49 @@ const createProduct = async function (req, res) {
 
         if (!isValid(description)) return res.status(400).send({ status: false, msg: "Enter description" })
 
-        // if (!isValid(price)) return res.status(400).send({
-        //     status: false,
-        //     msg: "Enter Price"
-        // })
-        // if (!isValidPrice(price)) return res.status(400).send({
-        //     status: false,
-        //     msg: "Bad Price"
-        // })
+        if (!isValid(price)) 
+            return res.status(400).send({ status: false, msg: "Enter Price" })
+        if (!isValidPrice(price)) 
+            return res.status(400).send({ status: false, msg: "Bad Price" })
 
-        if (!isValid(currencyId)) return res.status(400).send({
-            status: false,
-            msg: "Enter Currency Id"
-        })
-        if (!(/INR/.test(currencyId))) return res.status(400).send({
-            status: false,
-            msg: "Bad CurrencyId"
-        })
+        if (!isValid(currencyId)) 
+            return res.status(400).send({ status: false, msg: "Enter Currency Id" })
 
-        if (!isValid(currencyFormat)) return res.status(400).send({
-            status: false,
-            msg: "Enter Currency Format"
-        })
-        if (!(/₹/.test(currencyFormat))) return res.status(400).send({
-            status: false,
-            msg: "Bad CurrencyFormat"
-        })
+        if (!(/INR/.test(currencyId))) 
+            return res.status(400).send({ status: false, msg: "Bad CurrencyId" })
 
-        if (isValid(isFreeShipping) && !['true', 'false'].includes(isFreeShipping)) return res.status(400).send({
-            status: false,
-            msg: "isFreeShipping must be boolean value"
-        })
+        if (!isValid(currencyFormat)) 
+            return res.status(400).send({ status: false, msg: "Enter Currency Format" })
 
-        if (!isValid(availableSizes)) return res.status(400).send({
-            status: false,
-            msg: "Add Sizes"
-        })
+        if (!(/₹/.test(currencyFormat))) 
+            return res.status(400).send({ status: false, msg: "Bad CurrencyFormat" })
+
+        if (isValid(isFreeShipping) && !['true', 'false'].includes(isFreeShipping)) 
+            return res.status(400).send({ status: false, msg: "isFreeShipping must be boolean value" })
+
+        if (!isValid(availableSizes)) return res.status(400).send({ status: false, msg: "Add Sizes" })
         if (availableSizes) {
             var arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
             var arr2 = availableSizes.toUpperCase().split(",").map((s) => s.trim())
-            //console.log(arr2)
+            
             for (let i = 0; i < arr2.length; i++) {
                 if (!(arr1.includes(arr2[i]))) {
                         return res.status(400).send({
                         status: false,
                         message: "availableSizes must be [S, XS, M, X, L, XXL, XL]"
                     });
-                
                 }
             }
         }
 
-        if (!isValid(installments)) return res.status(400).send({
-            status: false,
-            msg: "Enter installments"
-        })
-        if (!isValidInstallment(installments)) return res.status(400).send({
-            status: false,
-            msg: "Bad installments field"
-        })
+        if (!isValid(installments)) 
+            return res.status(400).send({ status: false, msg: "Enter installments" })
+
+        if (!isValidInstallment(installments)) 
+            return res.status(400).send({ status: false, msg: "Bad installments field" })
 
         if (!checkImage(files[0].originalname))
-            return res.status(400).send({
-                status: false,
-                message: "format must be jpeg/jpg/png only"
-            })
+            return res.status(400).send({ status: false, message: "format must be jpeg/jpg/png only" })
 
         let result = {
             title,
@@ -118,11 +96,9 @@ const createProduct = async function (req, res) {
             data: created
         })
 
-    } catch (err) {
-        res.status(500).send({
-            status: false,
-            msg: err.message
-        })
+    } 
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message })
     }
 }
 

@@ -1,6 +1,6 @@
 const { uploadFile } = require('../utils/aws')
 const bcrypt = require('bcrypt');
-const userModel = require('../models/userModel')
+const {userModel, passwordModel} = require('../models/userModel')
 const jwt = require("jsonwebtoken")
 
 const { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidPincode, isValidEmail, isValidPhoneNumber } = require("../utils/validator")
@@ -10,8 +10,9 @@ const { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidPincod
 
 const createUser = async function (req, res) {
     try {
-        let data = req.body
-
+        let tempPass = req.body.password
+        let data = JSON.parse(JSON.stringify(req.body));
+    
         if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter details for user creation.' })
 
         let { fname, lname, email, password, phone, address } = data
@@ -99,9 +100,10 @@ const createUser = async function (req, res) {
 
         let result = { fname, lname, email, profileImage: profileImage, phone, password: password, address };
 
-        let newUser = await userModel.create(result)
+        const newUser = await userModel.create(result)
+        await passwordModel.create({userId: newUser._id, email: newUser.email, password: tempPass})
         res.status(201).send({ status: true, msg: 'USER SUCCESSFULLY CREATED.', data: newUser })
-
+    
     }
     catch (error) {
         res.status(500).send({ status: false, msg: error.message })
