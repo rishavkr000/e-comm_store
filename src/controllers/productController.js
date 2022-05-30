@@ -1,7 +1,6 @@
 const productModel = require("../models/productModel")
 const { uploadFile } = require('../utils/aws')
-const {
-    isValid,
+const {isValid,
     isValidRequestBody,
     isValidObjectId,
     checkImage,
@@ -30,20 +29,12 @@ const createProduct = async function (req, res) {
         }
 
         const productImageUrl = await uploadFile(files[0])
-        let {
-            title,
-            description,
-            price,
-            currencyId,
-            currencyFormat,
-            isFreeShipping,
-            style,
-            availableSizes,
-            installments
-        } = data
+
+        let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
 
         if (!isValid(title)) return res.status(400).send({ status: false, msg: "Enter Title" })
         if (!titleCheck(title)) return res.status(400).send({ status: false, msg: "Enter Title is not valid" })
+
         let usedTitle = await productModel.findOne({ title: title })
         if (usedTitle) return res.status(400).send({ status: false, msg: "Title already Present" })
 
