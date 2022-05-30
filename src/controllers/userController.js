@@ -1,6 +1,5 @@
 const { uploadFile } = require('../utils/aws')
 const bcrypt = require('bcrypt');
-// const JSON = require('body-parser');
 const userModel = require('../models/userModel')
 const jwt = require("jsonwebtoken")
 
@@ -51,39 +50,39 @@ const createUser = async function (req, res) {
 
 
         if (!isValid(address))
-            return res.status(400).send({ status: false, message: "address required" });
+            return res.status(400).send({ status: false, message: "Address required" });
 
         address = JSON.parse(address)
 
         let { shipping, billing } = address
 
         if (!isValid(shipping)) {
-            return res.status(400).send({ status: false, message: "shipping address required" });
+            return res.status(400).send({ status: false, message: "Shipping address required" });
         } else {
             let { street, city, pincode } = shipping
 
             if (!isValid(street))
-                return res.status(400).send({ status: false, message: "shipping street required" });
+                return res.status(400).send({ status: false, message: "Shipping street required" });
 
             if (!isValid(city))
-                return res.status(400).send({ status: false, message: "shipping city required" });
+                return res.status(400).send({ status: false, message: "Shipping city required" });
 
             if (!isValidPincode(pincode))
-                return res.status(400).send({ status: false, message: "shipping pincode Should be Like: 750001" });
+                return res.status(400).send({ status: false, message: "Shipping pincode Should be Like: 750001" });
         }
 
         if (!isValid(billing)) {
-            return res.status(400).send({ status: false, message: "billing address required" });
+            return res.status(400).send({ status: false, message: "Billing address required" });
         } else {
             let { street, city, pincode } = billing
             if (!isValid(street))
-                return res.status(400).send({ status: false, message: "shipping street required" });
+                return res.status(400).send({ status: false, message: "Billing street required" });
 
             if (!isValid(city))
-                return res.status(400).send({ status: false, message: "billing city required" });
+                return res.status(400).send({ status: false, message: "Billing city required" });
 
             if (!isValidPincode(pincode))
-                return res.status(400).send({ status: false, message: "billing pincode Should be Like: 750001" });
+                return res.status(400).send({ status: false, message: "Billing pincode Should be Like: 750001" });
         }
 
 
@@ -137,7 +136,7 @@ const loginUser = async function (req, res) {
         }
         const samePassword = await bcrypt.compare(password, user.password);
         if (!samePassword) {
-            return res.status(404).send({ status: false, message: "Password is not correct" })
+            return res.status(401).send({ status: false, message: "Password is not correct" })
         }
 
         let token = jwt.sign(
@@ -145,7 +144,7 @@ const loginUser = async function (req, res) {
                 userId: user._id.toString(),
                 batch: "Uranium",
                 organisation: "FunctionUp",
-                exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour 1200s | 2500 (60*10) | (60 * min)
+                exp: Math.floor(Date.now() / 1000) + (60 * 60)
             },
             "functionUp-Uranium"
         )
@@ -195,9 +194,6 @@ const updateUser = async function (req, res) {
         const data = req.body
         const files = req.files
 
-        // if (!userId) {
-        //     return res.status(400).send({ status: false, message: "Please Provide UserId" });
-        // }
         if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, msg: "Please enter a valid userId" })
         }
@@ -272,12 +268,18 @@ const updateUser = async function (req, res) {
                 }else{
                     checkUser.address.shipping.city = city
                 }
-                if (!isValidPincode(pincode)){
+                if(isValid(pincode)){
+                    if(isValidPincode(pincode)){
+                        checkUser.address.shipping.pincode = pincode
+                    }
                     return res.status(400).send({ status: false, message: "shipping pincode Should be Like: 750001" });
-                }else{
-                    checkUser.address.shipping.pincode = pincode
+                }
+                else {
+                    return res.status(400).send({ status: false, message: "shipping pincode is required" });
                 }
             }
+
+            
 
             if (isValid(billing)) {
 
@@ -293,10 +295,14 @@ const updateUser = async function (req, res) {
                 }else{
                     checkUser.address.billing.city = city
                 }
-                if (!isValidPincode(pincode)){
-                    return res.status(400).send({ status: false, message: "shipping pincode Should be Like: 750001" });
-                }else{
-                    checkUser.address.billing.pincode = pincode
+                if(isValid(pincode)){
+                    if(isValidPincode(pincode)){
+                        checkUser.address.billing.pincode = pincode
+                    }
+                    return res.status(400).send({ status: false, message: "Billing pincode Should be Like: 750001" });
+                }
+                else {
+                    return res.status(400).send({ status: false, message: "Billing pincode is required" });
                 }
             }
         }
