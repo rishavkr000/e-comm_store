@@ -7,7 +7,6 @@ const orderSchema = new mongoose.Schema({
         type: ObjectId,
         ref: 'User',
         required: true,
-        unique: true,
         trim: true
     },
     items: [{
@@ -36,8 +35,8 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        default: 'pending',
         enum: ["pending", "completed", "cancled"],
+        default: "pending",
         trim: true
     },
     deletedAt: {

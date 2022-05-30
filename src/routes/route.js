@@ -27,7 +27,7 @@ router.get('/users/:userId/cart', authentication, getCart)
 router.delete('/users/:userId/cart', authentication, deleteCart)
 
 // 4. Order
-router.post('/users/:userId/orders', authentication, createOrder)
+router.post('/users/:userId/orders',authentication, createOrder)
 router.put('/users/:userId/orders', authentication, updateOrder)
 
 
