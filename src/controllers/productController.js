@@ -1,13 +1,6 @@
 const productModel = require("../models/productModel")
 const { uploadFile } = require('../utils/aws')
-const {isValid,
-    isValidRequestBody,
-    isValidObjectId,
-    checkImage,
-    titleCheck,
-    isValidPrice,
-    isValidInstallment
-} = require("../utils/validator")
+const {isValid, isValidRequestBody, isValidObjectId, checkImage, titleCheck, isValidPrice, isValidInstallment } = require("../utils/validator")
 
 
 // ============== POST / Create Poduct =======================//
@@ -16,7 +9,7 @@ const {isValid,
 const createProduct = async function (req, res) {
     try {
         let data = JSON.parse(JSON.stringify(req.body));
-        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter details for user creation.' })
+        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter details for product creation.' })
 
         let files = req.files
         let uploadedFileURL
@@ -27,7 +20,6 @@ const createProduct = async function (req, res) {
                 msg: "Provide Product Image"
             })
         }
-
         const productImageUrl = await uploadFile(files[0])
 
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
@@ -207,19 +199,12 @@ const getProduct = async function (req, res) {
         }
 
 
-        const getProductDetails = await productModel.find(filter).sort({
-            price: priceSort
-        })
-        res.status(200).send({
-            status: true,
-            msg: "Prodect Details find Successsully",
-            data: getProductDetails
-        })
-    } catch (err) {
-        res.status(500).send({
-            status: false,
-            msg: err.message
-        })
+        const getProductDetails = await productModel.find(filter).sort({ price: priceSort })
+
+        res.status(200).send({ status: true, msg: "Prodect Details find Successsully", data: getProductDetails })
+    } 
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message })
     }
 }
 
@@ -227,37 +212,21 @@ const getProduct = async function (req, res) {
 // ============== GET / Get Poduct by product Id =======================//
 
 
-
 const getProductById = async function (req, res) {
     try {
         const productId = req.params.productId
 
-        if (!isValidObjectId(productId)) {
-            return res.status(400).send({
-                status: false,
-                msg: "Please enter a valid productId"
-            })
-        }
+        if (!isValidObjectId(productId)) 
+            return res.status(400).send({ status: false, msg: "Please enter a valid productId" })
 
-        const findProduct = await productModel.findOne({
-            _id: productId,
-            isDeleted: false
-        })
+        const findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        if (!findProduct) return res.status(404).send({
-            status: false,
-            msg: "Product not found"
-        })
-        res.status(200).send({
-            status: true,
-            data: findProduct
-        })
+        if (!findProduct) return res.status(404).send({ status: false, msg: "Product not found" })
+            
+        res.status(200).send({ status: true, data: findProduct })
 
     } catch (err) {
-        res.status(500).send({
-            status: false,
-            msg: err.message
-        })
+        res.status(500).send({ status: false, msg: err.message })
     }
 }
 
@@ -272,48 +241,25 @@ const updateProduct = async function (req, res) {
         let requestBody = req.body
         const files = req.files
 
-        if (!isValidObjectId(productId)) {
-            return res.status(400).send({
-                status: false,
-                msg: 'Invalid productId'
-            })
-        }
+        if (!isValidObjectId(productId))
+            return res.status(400).send({ status: false, msg: 'Invalid productId' })
+
         const productDetails = await productModel.findById(productId)
-        if (!productDetails) {
-            return res.status(404).send({
-                status: false,
-                msg: 'Product Not Found'
-            })
-        }
-        if (productDetails.isDeleted == true) {
-            return res.status(400).send({
-                status: false,
-                msg: 'Product is already Deleted'
-            })
-        }
+        if (!productDetails) 
+            return res.status(404).send({ status: false,  msg: 'Product Not Found' })
+        
+        if (productDetails.isDeleted == true) 
+            return res.status(400).send({ status: false, msg: 'Product is already Deleted' })
+        
 
-        if (!isValidRequestBody(requestBody)) {
-            return res.status(400).send({
-                status: false,
-                msg: 'Enter atleast One detail to update'
-            })
-        }
-
-        const {
-            title,
-            description,
-            price,
-            isFreeShipping,
-            style,
-            availableSizes,
-            installments
-        } = requestBody
+        if (!isValidRequestBody(requestBody)) 
+            return res.status(400).send({ status: false, msg: 'Enter atleast One detail to update' })
+        
+        const { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = requestBody
 
         if (isValid(title)) {
-            if (!titleCheck(title)) return res.status(400).send({
-                status: false,
-                msg: "Enter Title is not valid"
-            })
+            if (!titleCheck(title)) 
+                return res.status(400).send({ status: false, msg: "Enter Title is not valid" })
             productDetails.title = title
         }
 
@@ -322,19 +268,24 @@ const updateProduct = async function (req, res) {
         }
 
         if (isValid(price)) {
-            if (!isValidPrice(price)) return res.status(400).send({
-                status: false,
-                msg: "Bad Price"
-            })
+            if (!isValidPrice(price)) 
+                return res.status(400).send({ status: false, msg: "Bad Price" })
             productDetails.price = price
         }
 
+        if (isValid(currencyId)) 
+            if (!(/INR/.test(currencyId))) 
+                return res.status(400).send({ status: false, msg: "Bad CurrencyId" })
+            productDetails.currencyId = currencyId
+
+        if (isValid(currencyFormat)) 
+            if (!(/₹/.test(currencyFormat))) 
+                return res.status(400).send({ status: false, msg: "Bad Currency Format" })
+            productDetails.currencyFormat = currencyFormat
+
         if (isValid(isFreeShipping)) {
             if (!['true', 'false'].includes(isFreeShipping))
-                return res.status(400).send({
-                    status: false,
-                    msg: "isFreeShipping must be boolean value"
-                })
+                return res.status(400).send({ status: false, msg: "isFreeShipping must be boolean value" })
             productDetails.isFreeShipping = isFreeShipping
         }
 
@@ -369,11 +320,8 @@ const updateProduct = async function (req, res) {
         }
 
         if (isValid(installments)) {
-            if (isValidInstallment(installments)) return res.status(400).send({
-                status: false,
-                msg: "Bad installments field"
-            })
-
+            if (isValidInstallment(installments)) 
+                return res.status(400).send({ status: false, msg: "Bad installments field" })
             productDetails.installments = installments
         }
 
@@ -396,21 +344,13 @@ const deleteProductById = async function (req, res) {
     try {
         const productId = req.params.productId
 
-        if (!isValidObjectId(productId)) {
-            return res.status(400).send({
-                status: false,
-                msg: "Please enter a valid productId"
-            })
-        }
+        if (!isValidObjectId(productId)) 
+            return res.status(400).send({ status: false, msg: "Please enter a valid productId" })
+        
+        const findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        const findProduct = await productModel.findOne({
-            _id: productId,
-            isDeleted: false
-        })
-        if (!findProduct) return res.status(404).send({
-            status: false,
-            msg: "Product not found"
-        })
+        if (!findProduct) 
+            return res.status(404).send({ status: false, msg: "Product not found" })
 
         let deletedProduct = await productModel.findOneAndUpdate({
             _id: productId
@@ -422,17 +362,11 @@ const deleteProductById = async function (req, res) {
         }, {
             new: true
         })
-        res.status(200).send({
-            status: true,
-            message: " Product Deleted Successfully",
-            data: deletedProduct
-        })
+        res.status(200).send({ status: true, message: " Product Deleted Successfully", data: deletedProduct })
 
-    } catch (err) {
-        res.status(500).send({
-            status: false,
-            msg: err.message
-        })
+    } 
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message })
     }
 }
 
