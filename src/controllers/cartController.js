@@ -64,6 +64,40 @@ const createCart = async function (req, res) {
                 res.status(201).send({ status: true, msg: 'Cart Created Successfully', data: newCart })
 
             }
+        }else{
+            if(!isValid(data.productId))return res.status(400).send({status:false,msg:'Provide productId'})
+            if(!isValidObjectId(data.productId))return res.status(400).send({status:false,msg:'Provide valid productId'})
+            
+            let existingCart = await cartModel.findOne({ _id: data.cartId })
+            if (existingCart) {
+                
+                let product = await productModel.findOne({ _id: data.productId , isDeleted:false})
+                if(!product)return res.status(404).send({status:false,msg:'Product not found.'})
+                data.quantity= data.quantity ?? 1
+                for(let i=0;i<existingCart.items.length;i++){
+                    if(data.productId.toString()==existingCart.items[i].productId){
+                        existingCart.items[i].quantity+=Number(data.quantity)  
+                        existingCart.totalPrice+=product.price*(data.quantity)
+                        existingCart.totalItems = existingCart.items.length
+                        existingCart.save()
+                        return res.status(200).send({status:true,msg:'Success',data:existingCart})
+                    }else{
+                        continue
+                    }
+                }
+                let obj = {
+                    productId: data.productId,
+                    quantity: data.quantity
+                }
+                existingCart.items.push(obj)
+                existingCart.totalPrice += product.price*(data.quantity)
+                existingCart.totalItems = existingCart.items.length
+                existingCart.save()
+                res.status(200).send({status:true,msg:'Success',data:existingCart})
+            }else{
+                return res.status(404).send({status:false,msg:'Enter valid cartId.'})
+            }
+            
         }
     }
     catch (error) {
