@@ -195,6 +195,7 @@ const updateUser = async function (req, res) {
         const userId = req.params.userId
         const data = req.body
         const files = req.files
+        let tempPass = req.body.password
 
         if (!isValidObjectId(userId)) {
             return res.status(400).send({ status: false, msg: "Please enter a valid userId" })
@@ -314,12 +315,10 @@ const updateUser = async function (req, res) {
                 let uploadedFileURL = await uploadFile(files[0])
                 checkUser.profileImage = uploadedFileURL
             }
-            else {
-                return res.status(400).send({ msg: "No file found" })
-            }
         }
 
         await checkUser.save();
+        await passwordModel.findOneAndUpdate({userId: checkUser._id}, {email: checkUser.email, password: tempPass})
         return res.status(200).send({ status: true, message: "User Profile updated", data: checkUser })
 
     }
