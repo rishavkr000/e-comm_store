@@ -12,7 +12,7 @@ const createCart = async function (req, res) {
     try {
         let userId = req.params.userId
         if (!isValidObjectId(userId)) return res.status(400).send({ status: false, msg: 'Enter valid User Id.' })
-        if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized to update details" })
+        //if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized to update details" })
 
 
         let data = JSON.parse(JSON.stringify(req.body))
