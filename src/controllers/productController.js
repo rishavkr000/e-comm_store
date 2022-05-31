@@ -150,17 +150,13 @@ const getProduct = async function (req, res) {
             }
 
             if (priceGreaterThan) {
-                if (!isValid(priceGreaterThan)) {
-                    filter.price = {
-                        $gt: priceGreaterThan
-                    }
+                filter.price = {
+                    $gt: priceGreaterThan
                 }
             }
             if (priceLessThan) {
-                if (!isValid(priceLessThan)) {
-                    filter.price = {
-                        $lt: priceLessThan
-                    }
+                filter.price = {
+                    $lt: priceLessThan
                 }
             }
             if (priceSort) {
@@ -277,7 +273,7 @@ const updateProduct = async function (req, res) {
         }
 
         if (availableSizes) {
-            if (!isValid(availableSizes))
+            if (isValid(availableSizes))
                 if (availableSizes) {
                     let arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                     var arr2 = availableSizes.toUpperCase().split(",").map((s) => s.trim())
@@ -294,8 +290,9 @@ const updateProduct = async function (req, res) {
         }
 
         if (isValid(installments)) {
-            if (isValidInstallment(installments)) 
+            if (!isValidInstallment(installments)) {
                 return res.status(400).send({ status: false, msg: "Bad installments field" })
+            }
             productDetails.installments = installments
         }
 
@@ -324,7 +321,7 @@ const deleteProductById = async function (req, res) {
         const findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
         if (!findProduct) 
-            return res.status(404).send({ status: false, msg: "Product not found" })
+            return res.status(404).send({ status: false, msg: "Product not found either product already deleted." })
 
         let deletedProduct = await productModel.findOneAndUpdate({
             _id: productId
