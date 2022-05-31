@@ -80,7 +80,6 @@ const passwordSchema = new mongoose.Schema({
     password: {type: String, required: true}
 })
 
-
 const userModel = mongoose.model('User', userSchema)//users
 const passwordModel = mongoose.model('Password', passwordSchema)//passwords
 
