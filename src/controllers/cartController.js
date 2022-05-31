@@ -1,5 +1,5 @@
 const cartModel = require('../models/cartModel')
-const userModel = require('../models/userModel')
+const {userModel} = require('../models/userModel')
 const productModel = require('../models/productModel')
 
 const { isValidObjectId, isValid, isValidRequestBody } = require('../utils/validator')
@@ -79,7 +79,7 @@ const createCart = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Invalid User Id" })
         }
 
-        const checkUser = await userModel.findOne({_id: userId})
+        const checkUser = await userModel.findById(userId)
         if (!checkUser) return res.status(404).send({ status: false, msg: "User does not exist" })
 
         if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized" })
@@ -90,12 +90,12 @@ const createCart = async function (req, res) {
 
         const existingCart = await cartModel.findOne({ userId: userId })
         if (!existingCart) {
-            const productId = req.body.item[0].productId;
+            const productId = req.body.items[0].productId;
             if (!isValidObjectId(productId)) {
                 return res.status(400).send({ status: false, msg: "Invalid productId" })
             }
 
-            let product = await productModel.findOne({ _id: data.productId, isDeleted: false })
+            let product = await productModel.findOne({ _id: productId, isDeleted: false })
             if (!product) {
                 return res.status(404).send({ status: false, msg: 'Product not found or already deleted' })
             }
@@ -120,12 +120,12 @@ const createCart = async function (req, res) {
 
 
         if (existingCart) {
-            const productId = req.body.item[0].productId;
+            const productId = req.body.items[0].productId;
             if (!isValidObjectId(productId)) {
                 return res.status(400).send({ status: false, msg: "Invalid productId" })
             }
 
-            let product = await productModel.findOne({ _id: data.productId, isDeleted: false })
+            let product = await productModel.findOne({ _id: productId, isDeleted: false })
             if (!product) {
                 return res.status(404).send({ status: false, msg: 'Product not found.' })
             }
