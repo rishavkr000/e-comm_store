@@ -190,7 +190,7 @@ const updateCart = async (req, res) => {
         }
 
         if (!isValidObjectId(cartId)) {
-            return res.status(400).send({ status: false, msg: 'productId is inValid' })
+            return res.status(400).send({ status: false, msg: 'cartId is inValid' })
         }
 
         const findCart = await cartModel.findOne({ userId: userId, _id: cartId });
@@ -202,11 +202,13 @@ const updateCart = async (req, res) => {
             return res.status(400).send({ status: false, msg: "Cart of this user is already empty" })
         }
 
+
+
         if (!(removeProduct == 0 || removeProduct == 1)) {
             return res.status(400).send({ status: false, msg: "removePoduct value should be 0 or 1" })
         }
         if (removeProduct == 1) {
-            for (let i = 0; i < findCart.length; i++) {
+            for (let i = 0; i < findCart.items.length; i++) {
                 if (productId == findCart.items[i].productId) {
                     let totalPrice = findCart.totalPrice - findProduct.price
                     if (findCart.items[i].quantity > 1) {
@@ -223,7 +225,7 @@ const updateCart = async (req, res) => {
             }
         }
 
-        if (removeProduct == 1) {
+        if (removeProduct == 0) {
             for (let i = 0; i < findCart.length; i++) {
                 if (productId == findCart.items[i].productId) {
                     let totalPrice = findCart.totalPrice - (findProduct.price * findCart.items[i].quantity)
@@ -275,7 +277,7 @@ const deleteCart = async (req, res) => {
 
         if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized" })
 
-        const findCart = await cartModel.findOne(userId)
+        const findCart = await cartModel.findOne({userId})
         if (!findCart) {
             return res.status(404).send({ status: false, msg: "No Cart Found" })
         }
