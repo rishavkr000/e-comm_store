@@ -54,6 +54,10 @@ let isValidInstallment = (num) => {
     return installmentsRegex.test(num)
 }
 
+let isValidPassword = function (password) {
+    let passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/
+    return passwordRegex.test(password)
+}
 
 
-module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode, isValidPrice, checkImage, titleCheck, isValidInstallment }
+module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode, isValidPrice, checkImage, titleCheck, isValidInstallment, isValidPassword }

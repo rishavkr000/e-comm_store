@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const {userModel, passwordModel} = require('../models/userModel')
 const jwt = require("jsonwebtoken")
 
-const { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidPincode, isValidEmail, isValidPhoneNumber } = require("../utils/validator")
+const { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidPincode, isValidEmail, isValidPhoneNumber, isValidPassword } = require("../utils/validator")
 
 
 //*************************************************< User Registration >*****************************************************//
@@ -43,9 +43,8 @@ const createUser = async function (req, res) {
 
 
         if (!isValid(password)) return res.status(400).send({ status: false, msg: 'Enter password' })
-
-        if (!(`${password}`.length <= 15 && `${password}`.length >= 8)) {
-            return res.status(400).send({ status: false, msg: "Password Should be minimum 8 characters and maximum 15 characters" })
+        if (!isValidPassword(password)) {
+            return res.status(400).send({ status: false, message: ` Password ${password} length must be between 8 and 15 and must contain mix of unique character @#$%&* and a-z, A-Z` })
         }
         password = await bcrypt.hash(password, 10)
 
