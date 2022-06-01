@@ -50,7 +50,7 @@ let titleCheck = (title) => {
 }
 
 let isValidInstallment = (num) => {
-    let installmentsRegex = /^[0-9]{1,2}$/
+    let installmentsRegex = /^[0-9]{1,5}$/
     return installmentsRegex.test(num)
 }
 

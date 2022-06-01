@@ -260,24 +260,17 @@ const updateUser = async function (req, res) {
 
                 let { street, city, pincode } = shipping
 
-                if (!isValid(street)){
-                    return res.status(400).send({ status: false, message: "shipping street required" });
-                }else{
+                if (isValid(street)){
                     checkUser.address.shipping.street = street
                 }
-                if (!isValid(city)){
-                    return res.status(400).send({ status: false, message: "shipping city required" });
-                }else{
+                if (isValid(city)){
                     checkUser.address.shipping.city = city
                 }
-                if(isValid(pincode)){
-                    if(isValidPincode(pincode)){
-                        checkUser.address.shipping.pincode = pincode
+                if (isValid(pincode)){
+                    if(!isValidPincode(pincode)){
+                        return res.status(400).send({ status: false, message: "Shipping pincode Should be only six digit" });
                     }
-                    return res.status(400).send({ status: false, message: "shipping pincode Should be Like: 750001" });
-                }
-                else {
-                    return res.status(400).send({ status: false, message: "shipping pincode is required" });
+                    checkUser.address.shipping.pincode = pincode
                 }
             } 
 
@@ -285,24 +278,17 @@ const updateUser = async function (req, res) {
 
                 let { street, city, pincode } = billing
 
-                  if (!isValid(street)){
-                    return res.status(400).send({ status: false, message: "shipping street required" });
-                }else{
+                if (isValid(street)){
                     checkUser.address.billing.street = street
                 }
-                if (!isValid(city)){
-                    return res.status(400).send({ status: false, message: "shipping city required" });
-                }else{
+                if (isValid(city)){
                     checkUser.address.billing.city = city
                 }
-                if(isValid(pincode)){
-                    if(isValidPincode(pincode)){
-                        checkUser.address.billing.pincode = pincode
+                if (isValid(pincode)){
+                    if(!isValidPincode(pincode)){
+                        return res.status(400).send({ status: false, message: "billing pincode Should be only six digit" });
                     }
-                    return res.status(400).send({ status: false, message: "Billing pincode Should be Like: 750001" });
-                }
-                else {
-                    return res.status(400).send({ status: false, message: "Billing pincode is required" });
+                    checkUser.address.billing.pincode = pincode
                 }
             }
         }
