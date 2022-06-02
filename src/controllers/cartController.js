@@ -7,69 +7,6 @@ const { isValidObjectId, isValid, isValidRequestBody } = require('../utils/valid
 
 // ============== POST / Create Cart =======================//
 
-// const createCart = async function (req, res) {
-//     try {
-//         let userId = req.params.userId
-//         let data = JSON.parse(JSON.stringify(req.body))
-//         if(!isValidRequestBody(data))return res.status(400).send({status:false,msg:'Provide details'})
-
-//         if (data.cartId == undefined) {
-//             if(!isValid(data.productId))return res.status(400).send({status:false,msg:'Provide productId'})
-//             if(!isValidObjectId(data.productId))return res.status(400).send({status:false,msg:'Provide valid productId'})
-
-//             let existingCart = await cartModel.findOne({ userId: userId })
-//             //if cart already exists............................ 
-//             if (existingCart) {
-
-//                 let product = await productModel.findOne({ _id: data.productId , isDeleted:false})
-//                 if(!product)return res.status(404).send({status:false,msg:'Product not found.'})
-//                 data.quantity= data.quantity ?? 1
-//                 for(let i=0;i<existingCart.items.length;i++){
-//                     if(data.productId.toString()==existingCart.items[i].productId){
-//                         existingCart.items[i].quantity+=Number(data.quantity)  
-//                         existingCart.totalPrice+=product.price*(data.quantity)
-//                         existingCart.totalItems = existingCart.items.length
-//                         existingCart.save()
-//                         return res.status(200).send({status:true,msg:'Success',data:existingCart})
-//                     }else{
-//                         continue
-//                     }
-//                 }
-//                 let obj = {
-//                     productId: data.productId,
-//                     quantity: data.quantity
-//                 }
-//                 existingCart.items.push(obj)
-//                 existingCart.totalPrice += product.price*(data.quantity)
-//                 existingCart.totalItems = existingCart.items.length
-//                 existingCart.save()
-//                 res.status(200).send({status:true,msg:'Success',data:existingCart})
-//             } else {
-//                 //new cart is created.......
-//                 let product = await productModel.findOne({ _id: data.productId , isDeleted:false})
-//                 if(!product)return res.status(404).send({status:false,msg:'Product not found.'})
-//                 data.quantity= data.quantity ?? 1
-//                 let creationData = {
-//                     userId: userId,
-//                     items: [{
-//                         productId: data.productId,
-//                         quantity: data.quantity
-//                     }],
-//                     totalPrice: product.price*(data.quantity),
-
-//                 }
-//                 creationData.totalItems=creationData.items.length
-//                 let newCart = await cartModel.create(creationData)
-//                 res.status(201).send({ status: true, msg: 'Cart Created Successfully', data: newCart })
-
-//             }
-//         }
-//     }
-//     catch (error) {
-//         res.status(500).send({ status: false, msg: error.message })
-//     }
-// }
-
 const createCart = async function (req, res) {
     try {
         const userId = req.params.userId;

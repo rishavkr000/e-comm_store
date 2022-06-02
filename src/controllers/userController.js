@@ -44,7 +44,7 @@ const createUser = async function (req, res) {
 
         if (!isValid(password)) return res.status(400).send({ status: false, msg: 'Enter password' })
         if (!isValidPassword(password)) {
-            return res.status(400).send({ status: false, message: ` Password ${password} length must be between 8 and 15 and must contain mix of unique character @#$%&* and a-z, A-Z` })
+            return res.status(400).send({ status: false, message: ` Password ${password} length must be between 8 and 15 `})
         }
         password = await bcrypt.hash(password, 10)
 

@@ -37,17 +37,17 @@ const createOrder = async function (req, res) {
          if (findCart.items.length == 0) return res.status(400).send({ status: false, message: "Cart is already empty" });
 
         if(cancellable){
-                if (typeof cancellable !== 'boolean') 
-                    return res.status(400).send({ status: false, message: "Cancellable should be in boolean value" })
-                }
+            if (typeof cancellable !== 'boolean') 
+                return res.status(400).send({ status: false, message: "Cancellable should be in boolean value" })
+        }
             
         if(status){
             if(!["pending", "completed", "cancled"].includes(status)){
-                return res.status(400).send({ status: false, message: "Status should be pending/completed/cancled " })
+                return res.status(400).send({ status: false, message: "Status should be pending/completed/cancelled " })
             }
         }
         let count = 0;
-        for(let i =0; i<findCart.items.length;i++){
+        for(let i =0; i<findCart.items.length; i++){
             count += findCart.items[i].quantity;
         }
 
@@ -63,7 +63,7 @@ const order={
 
         let resData = await orderModel.create(order);
         await cartModel.findOneAndUpdate({_id: cartId, userId: userId },{ items: [], totalPrice: 0, totalItems: 0})
-        res.status(200).send({ status: false, message: "Order Placed successfully", data: resData });
+        res.status(200).send({ status: true, message: "Order Placed successfully", data: resData });
     }
     catch (error) {
         res.status(500).send({ status: false, msg: error.message })
@@ -100,7 +100,7 @@ const updateOrder = async (req, res) => {
         }
 
         if (!["pending", "completed", "cancled"].includes(status)) {
-            return res.status(400).send({ status: false, msg: 'status must be pending/completed/cancled' })
+            return res.status(400).send({ status: false, msg: 'status must be pending/completed/cancelled' })
         }
 
         if (findOrder.status == "completed") {

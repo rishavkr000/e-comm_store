@@ -112,7 +112,7 @@ const getProduct = async function (req, res) {
             isDeleted: false
         };
 
-        const {
+        let {
             size,
             name,
             priceGreaterThan,
@@ -122,24 +122,19 @@ const getProduct = async function (req, res) {
 
         if (Object.keys(queryParams).length !== 0) {
 
-            if (isValid(size)) {
-                if (Array.isArray(size) && size.length > 0) {
-                    for (let i = 0; i < size.length; i++) {
-                        if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(size[i])) {
-                            res.status(400).send({
-                                status: false,
-                                msg: 'Size should be: "S", "XS", "M", "X", "L", "XXL", "XL" '
-                            })
-                        }
+            if (size) {
+                var arr1 = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                var arr2 = size.toUpperCase().split(",").map((s) => s.trim())
+                
+                for (let i = 0; i < arr2.length; i++) {
+                    if (!(arr1.includes(arr2[i]))) {
+                            return res.status(400).send({
+                            status: false,
+                            message: "availableSizes must be [S, XS, M, X, L, XXL, XL]"
+                        });
                     }
-                    filter['availableSizes'] = size
-                } else {
-                    res.status(400).send({
-                        status: false,
-                        msg: 'size should be in array like; ["S", "XS", "M", "X", "L", "XXL", "XL"] '
-                    })
-
                 }
+                filter['availableSizes'] = size
             }
 
             if (isValid(name)) {
@@ -170,7 +165,7 @@ const getProduct = async function (req, res) {
 
 
         const getProductDetails = await productModel.find(filter).sort({ price: priceSort })
-
+        if(getProductDetails.length == 0) return res.status(404).send({status : false, msg : "Product not found"})
         res.status(200).send({ status: true, msg: "Prodect Details find Successsully", data: getProductDetails })
     } 
     catch (err) {
@@ -243,15 +238,17 @@ const updateProduct = async function (req, res) {
             productDetails.price = price
         }
 
-        if (isValid(currencyId)) 
+        if (isValid(currencyId)) {
             if (!(/INR/.test(currencyId))) 
                 return res.status(400).send({ status: false, msg: "Bad CurrencyId" })
             productDetails.currencyId = currencyId
+        }
 
-        if (isValid(currencyFormat)) 
+        if (isValid(currencyFormat)) {
             if (!(/₹/.test(currencyFormat))) 
                 return res.status(400).send({ status: false, msg: "Bad Currency Format" })
             productDetails.currencyFormat = currencyFormat
+        }
 
         if (isValid(isFreeShipping)) {
             if (!['true', 'false'].includes(isFreeShipping))

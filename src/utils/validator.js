@@ -55,7 +55,7 @@ let isValidInstallment = (num) => {
 }
 
 let isValidPassword = function (password) {
-    let passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/
+    let passwordRegex = /^(?=.*[A-Za-z])[A-Za-z\d]{8,15}$/
     return passwordRegex.test(password)
 }
 
