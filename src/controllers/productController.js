@@ -31,14 +31,14 @@ const createProduct = async function (req, res) {
         if (!isValid(currencyId)) 
             return res.status(400).send({ status: false, msg: "Enter Currency Id" })
 
-        if (!(/INR/.test(currencyId))) 
-            return res.status(400).send({ status: false, msg: "Bad CurrencyId" })
+        if (currencyId != 'INR')
+            return res.status(400).send({ status: false, msg: "CurrencyId must be only INR" })
 
         if (!isValid(currencyFormat)) 
             return res.status(400).send({ status: false, msg: "Enter Currency Format" })
 
         if (!(/₹/.test(currencyFormat))) 
-            return res.status(400).send({ status: false, msg: "Bad CurrencyFormat" })
+            return res.status(400).send({ status: false, msg: "CurrencyFormat must be only ₹" })
 
         if (typeof isFreeShipping != 'undefined') {
             if (!['true', 'false'].includes(isFreeShipping)) 
@@ -209,8 +209,10 @@ const updateProduct = async function (req, res) {
             return res.status(400).send({ status: false, msg: 'Product is already Deleted' })
         
 
-        if (!isValidRequestBody(requestBody)) 
+        if (!isValidRequestBody(requestBody) && typeof files === 'undefined') 
             return res.status(400).send({ status: false, msg: 'Enter atleast One detail to update' })
+
+            
         
         const { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = requestBody
 
@@ -233,7 +235,7 @@ const updateProduct = async function (req, res) {
         }
 
         if (isValid(currencyId)) {
-            if (!(/INR/.test(currencyId))) 
+            if (currencyId != 'INR') 
                 return res.status(400).send({ status: false, msg: "CurrencyId must be only INR" })
             productDetails.currencyId = currencyId
         }
@@ -248,15 +250,6 @@ const updateProduct = async function (req, res) {
             if (!['true', 'false'].includes(isFreeShipping))
                 return res.status(400).send({ status: false, msg: "isFreeShipping must be boolean value" })
             productDetails.isFreeShipping = isFreeShipping
-        }
-
-        if (req.files) {
-            if (files && req.files.length > 0) {
-                if (!checkImage(files[0].originalname))
-                    return res.status(400).send({status: false, message: "format must be jpeg/jpg/png only"})
-                let uploadedFileURL = await uploadFile(files[0])
-                productDetails.productImage = uploadedFileURL
-            }
         }
 
         if (isValid(style)) {
@@ -283,6 +276,15 @@ const updateProduct = async function (req, res) {
                 return res.status(400).send({ status: false, msg: "Bad installments field" })
             }
             productDetails.installments = installments
+        }
+
+        if (files.length > 0) {
+            if (files.length > 1)
+                return res.status(400).send({ status: false, message: "Insert only one image at a time" });
+            if (!checkImage(files[0].originalname))
+                return res.status(400).send({ status: false, message: "file format must be jpeg/jpg/png only" })
+            let uploadedFileURL = await uploadFile(files[0]);
+            productDetails.productImage = uploadedFileURL;
         }
 
         await productDetails.save();
