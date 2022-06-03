@@ -19,13 +19,15 @@ const createCart = async function (req, res) {
         const checkUser = await userModel.findById(userId)
         if (!checkUser) return res.status(404).send({ status: false, msg: "User does not exist" })
 
-        if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized" })
+        if (userId != req.userId) 
+            return res.status(401).send({ status: false, msg: "User not authorized to create the cart" })
 
         if (!isValidRequestBody(requestBody)) {
             return res.status(400).send({ status: false, msg: 'Please Provide cart details' })
         }
 
-        const existingCart = await cartModel.findOne({ userId: userId })
+        const existingCart = await cartModel.findById(userId)
+        
         if (!existingCart) {
             const productId = req.body.items[0].productId;
             

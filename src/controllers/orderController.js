@@ -51,17 +51,19 @@ const createOrder = async function (req, res) {
             count += findCart.items[i].quantity;
         }
 
-const order={
-    userId: userId,
-    items: findCart.items,
-    totalPrice: findCart.totalPrice,
-    totalItems: findCart.totalItems,
-    totalQuantity: count,
-    cancellable,
-    status
-}
+        const order={
+            userId: userId,
+            items: findCart.items,
+            totalPrice: findCart.totalPrice,
+            totalItems: findCart.totalItems,
+            totalQuantity: count,
+            cancellable,
+            status
+        }
 
         let resData = await orderModel.create(order);
+
+        // Empty the cart after Order placed successfully
         await cartModel.findOneAndUpdate({_id: cartId, userId: userId },{ items: [], totalPrice: 0, totalItems: 0})
         res.status(200).send({ status: true, message: "Order Placed successfully", data: resData });
     }
