@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const {userModel, passwordModel} = require('../models/userModel')
 const jwt = require("jsonwebtoken")
 
-const { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidPincode, isValidEmail, isValidPhoneNumber, isValidPassword } = require("../utils/validator")
+const { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidPincode, isValidEmail, isValidPhoneNumber, isValidPassword, checkImage } = require("../utils/validator")
 
 
 //*************************************************< User Registration >*****************************************************//
@@ -12,6 +12,7 @@ const createUser = async function (req, res) {
     try {
         let tempPass = req.body.password
         let data = JSON.parse(JSON.stringify(req.body));
+        let files = req.files
     
         if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter details for user creation.' })
 
@@ -44,7 +45,7 @@ const createUser = async function (req, res) {
 
         if (!isValid(password)) return res.status(400).send({ status: false, msg: 'Enter password' })
         if (!isValidPassword(password)) {
-            return res.status(400).send({ status: false, message: ` Password ${password} length must be between 8 and 15 `})
+            return res.status(400).send({ status: false, message: ` Password ${password} length must be between 8 and 15 and enter only character & digits`})
         }
         password = await bcrypt.hash(password, 10)
 
@@ -67,6 +68,8 @@ const createUser = async function (req, res) {
             if (!isValid(city))
                 return res.status(400).send({ status: false, message: "Shipping city required" });
 
+            if (!isValid(pincode))
+                return res.status(400).send({ status: false, message: "Shipping Pin Code required" });
             if (!isValidPincode(pincode))
                 return res.status(400).send({ status: false, message: "Shipping pincode Should be Like: 750001" });
         }
@@ -81,19 +84,19 @@ const createUser = async function (req, res) {
             if (!isValid(city))
                 return res.status(400).send({ status: false, message: "Billing city required" });
 
+            if (!isValid(pincode))
+                return res.status(400).send({ status: false, message: "Billing Pin Code required" });
             if (!isValidPincode(pincode))
                 return res.status(400).send({ status: false, message: "Billing pincode Should be Like: 750001" });
         }
 
-
-        let files = req.files
-        let uploadedFileURL
-        if (files && files.length > 0) {
-            uploadedFileURL = await uploadFile(files[0])
-        }
-        else {
-            res.status(400).send({ msg: "No file found" })
-        }
+        
+        if (files.length == 0)
+            return res.status(400).send({ status: false, message: "Please upload file" });
+        if (files.length > 1)
+            return res.status(400).send({ status: false, message: "Upload only one file at a time" });
+        if (!checkImage(files[0].originalname))
+            return res.status(400).send({ status: false, message: "format must be jpeg/jpg/png only" })
 
         const profileImage = await uploadFile(files[0])
 
@@ -124,10 +127,9 @@ const loginUser = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please enter a valid email address" })
         }
 
-        if (!isValid(password)) return res.status(400).send({ status: false, message: "Password is required" })
-        if (!(`${password}`.length <= 15 && `${password}`.length >= 8)) {
-            return res.status(400).send({ status: false, msg: "Please enter password length from 8 to 15" })
-        }
+        if (!isValid(password)) 
+            return res.status(400).send({ status: false, message: "Password is required" })
+        
 
         //Db call for checking user is valid user
         const user = await userModel.findOne({ email: email })
@@ -178,7 +180,6 @@ const profileDetails = async function (req, res) {
         }
         if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized" })
 
-
         res.status(200).send({ status: true, data: user })
     } catch (error) {
         res.status(500).send({ status: false, message: error.message })
@@ -199,12 +200,14 @@ const updateUser = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please enter a valid userId" })
         }
 
-        const checkUser = await userModel.findOne({ _id: userId })
+        const checkUser = await userModel.findById(userId)
         if (!checkUser) {
             return res.status(404).send({ status: false, message: "User Not Found" });
         }
 
         if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized to update details" })
+
+        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter atleast one detail for update user.' })
 
 
         let { fname, lname, email, password, phone, address } = data
@@ -232,8 +235,8 @@ const updateUser = async function (req, res) {
         }
 
         if (isValid(password)) {
-            if (!(`${password}`.length <= 15 && `${password}`.length >= 8)) {
-                return res.status(400).send({ status: false, msg: "Password Should be minimum 8 characters and maximum 15 characters" })
+            if (!isValidPassword(password)) {
+                return res.status(400).send({ status: false, msg: "Password Should be minimum 8 characters and maximum 15 characters and enter only character & digits" })
             }
             password = await bcrypt.hash(password, 10)
             checkUser.password = password;
@@ -292,11 +295,13 @@ const updateUser = async function (req, res) {
             }
         }
 
-        if (req.files) {
-            if (files && req.files.length > 0) {
-                let uploadedFileURL = await uploadFile(files[0])
-                checkUser.profileImage = uploadedFileURL
-            }
+        if (files.length > 0) {
+            if (files.length > 1)
+                return res.status(400).send({ status: false, message: "Insert only one image at a time" });
+            if (!checkImage(files[0].originalname))
+                return res.status(400).send({ status: false, message: "file format must be jpeg/jpg/png only" })
+            let uploadedFileURL = await uploadFile(files[0]);
+            checkUser.profileImage = uploadedFileURL;
         }
 
         await checkUser.save();
