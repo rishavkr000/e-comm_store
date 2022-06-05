@@ -71,7 +71,7 @@ const createUser = async function (req, res) {
             if (!isValid(pincode))
                 return res.status(400).send({ status: false, message: "Shipping Pin Code required" });
             if (!isValidPincode(pincode))
-                return res.status(400).send({ status: false, message: "Shipping pincode Should be Like: 750001" });
+                return res.status(400).send({ status: false, message: "Shipping pincode must be only 6 digits" });
         }
 
         if (!isValid(billing)) {
@@ -87,7 +87,7 @@ const createUser = async function (req, res) {
             if (!isValid(pincode))
                 return res.status(400).send({ status: false, message: "Billing Pin Code required" });
             if (!isValidPincode(pincode))
-                return res.status(400).send({ status: false, message: "Billing pincode Should be Like: 750001" });
+                return res.status(400).send({ status: false, message: "Billing pincode must be only 6 digits" });
         }
 
         
@@ -102,7 +102,7 @@ const createUser = async function (req, res) {
 
         let result = { fname, lname, email, profileImage: profileImage, phone, password: password, address };
 
-        const newUser = await userModel.create(result).select
+        const newUser = await userModel.create(result)
         await passwordModel.create({userId: newUser._id, email: newUser.email, password: tempPass})
         res.status(201).send({ status: true, msg: 'USER SUCCESSFULLY CREATED.', data: newUser })
     

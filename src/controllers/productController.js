@@ -329,7 +329,7 @@ const deleteProductById = async function (req, res) {
         }, {
             new: true
         })
-        res.status(200).send({ status: true, message: " Product Deleted Successfully", data: deletedProduct })
+        res.status(200).send({ status: true, message: " Product Deleted Successfully" })
 
     } 
     catch (err) {
