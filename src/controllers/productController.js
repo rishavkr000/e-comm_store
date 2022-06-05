@@ -146,6 +146,11 @@ const getProduct = async function (req, res) {
                     $lt: priceLessThan
                 }
             }
+
+            if (priceGreaterThan && priceLessThan) {
+                filter.price = { $gt: priceGreaterThan, $lt: priceLessThan }
+            }
+
             if (priceSort) {
                 if (!(priceSort == 1 || priceSort == -1))
                     return res.status(400).send({

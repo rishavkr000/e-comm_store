@@ -45,7 +45,7 @@ const createUser = async function (req, res) {
 
         if (!isValid(password)) return res.status(400).send({ status: false, msg: 'Enter password' })
         if (!isValidPassword(password)) {
-            return res.status(400).send({ status: false, message: ` Password ${password} length must be between 8 and 15 and enter only character & digits`})
+            return res.status(400).send({ status: false, message: ` Password ${password} length must be between 8 and 15 `})
         }
         password = await bcrypt.hash(password, 10)
 
@@ -102,7 +102,7 @@ const createUser = async function (req, res) {
 
         let result = { fname, lname, email, profileImage: profileImage, phone, password: password, address };
 
-        const newUser = await userModel.create(result)
+        const newUser = await userModel.create(result).select
         await passwordModel.create({userId: newUser._id, email: newUser.email, password: tempPass})
         res.status(201).send({ status: true, msg: 'USER SUCCESSFULLY CREATED.', data: newUser })
     
@@ -127,9 +127,10 @@ const loginUser = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please enter a valid email address" })
         }
 
-        if (!isValid(password)) 
-            return res.status(400).send({ status: false, message: "Password is required" })
-        
+        if (!isValid(password)) return res.status(400).send({ status: false, message: "Password is required" })
+        if (!(`${password}`.length <= 15 && `${password}`.length >= 8)) {
+            return res.status(400).send({ status: false, msg: "Please enter password length from 8 to 15" })
+        }
 
         //Db call for checking user is valid user
         const user = await userModel.findOne({ email: email })
@@ -180,6 +181,7 @@ const profileDetails = async function (req, res) {
         }
         if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized" })
 
+
         res.status(200).send({ status: true, data: user })
     } catch (error) {
         res.status(500).send({ status: false, message: error.message })
@@ -200,14 +202,15 @@ const updateUser = async function (req, res) {
             return res.status(400).send({ status: false, msg: "Please enter a valid userId" })
         }
 
-        const checkUser = await userModel.findById(userId)
+        if (!isValidRequestBody(data) && typeof files === 'undefined') 
+            return res.status(400).send({ status: false, msg: 'Enter atleast One detail to update' })
+
+        const checkUser = await userModel.findOne({ _id: userId })
         if (!checkUser) {
             return res.status(404).send({ status: false, message: "User Not Found" });
         }
 
         if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized to update details" })
-
-        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter atleast one detail for update user.' })
 
 
         let { fname, lname, email, password, phone, address } = data
@@ -235,8 +238,8 @@ const updateUser = async function (req, res) {
         }
 
         if (isValid(password)) {
-            if (!isValidPassword(password)) {
-                return res.status(400).send({ status: false, msg: "Password Should be minimum 8 characters and maximum 15 characters and enter only character & digits" })
+            if (!(`${password}`.length <= 15 && `${password}`.length >= 8)) {
+                return res.status(400).send({ status: false, msg: "Password Should be minimum 8 characters and maximum 15 characters" })
             }
             password = await bcrypt.hash(password, 10)
             checkUser.password = password;
@@ -295,13 +298,11 @@ const updateUser = async function (req, res) {
             }
         }
 
-        if (files.length > 0) {
-            if (files.length > 1)
-                return res.status(400).send({ status: false, message: "Insert only one image at a time" });
-            if (!checkImage(files[0].originalname))
-                return res.status(400).send({ status: false, message: "file format must be jpeg/jpg/png only" })
-            let uploadedFileURL = await uploadFile(files[0]);
-            checkUser.profileImage = uploadedFileURL;
+        if (req.files) {
+            if (files && req.files.length > 0) {
+                let uploadedFileURL = await uploadFile(files[0])
+                checkUser.profileImage = uploadedFileURL
+            }
         }
 
         await checkUser.save();
