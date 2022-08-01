@@ -1,12 +1,11 @@
 const express = require("express");
 const multer = require("multer");
-const { AppConfig } = require("aws-sdk");
 const router = require("./routes/route");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const app = express();
 const port = 4000;
 
-const app = express();
 app.use(bodyParser.json());
 app.use(multer().any());
 
