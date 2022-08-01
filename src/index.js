@@ -10,7 +10,7 @@ app.use(multer().any())
 
 const router = require('./routes/route')
 
-mongoose.connect("mongodb+srv://amit-DB:amit3112@cluster0.eztoe.mongodb.net/group41Database",
+mongoose.connect("mongodb+srv://group15_project:EDHBqxqKYJaki5EJ@cluster0.i9alz.mongodb.net/Rishav5th",
     { useNewUrlParser: true })
     .then(() => console.log("mongoDB is Connected!!"))
     .catch(err => console.log(err))

@@ -1,9 +1,17 @@
 const productModel = require("../models/productModel")
 const { uploadFile } = require('../utils/aws')
-const {isValid, isValidRequestBody, isValidObjectId, checkImage, titleCheck, isValidPrice, isValidInstallment } = require("../utils/validator")
+const {
+            isValid, 
+            isValidRequestBody, 
+            isValidObjectId, 
+            checkImage, 
+            titleCheck, 
+            isValidPrice, 
+            isValidInstallment 
+        } = require("../utils/validator")
 
 
-// ============== POST / Create Poduct =======================//
+// ============== POST / Create Product =======================//
 
 
 const createProduct = async function (req, res) {
@@ -95,11 +103,12 @@ const createProduct = async function (req, res) {
 }
 
 
-// ============== GET / Get Poduct using filter =======================//
+// ============== GET / Get Product using filter =======================//
 
 const getProduct = async function (req, res) {
     try {
         const queryParams = req.query;
+        const { page = 1, limit = 2 } = req.query
         const filter = {
             isDeleted: false
         };
@@ -161,7 +170,7 @@ const getProduct = async function (req, res) {
         }
 
 
-        const getProductDetails = await productModel.find(filter).sort({ price: priceSort })
+        const getProductDetails = await productModel.find().limit(limit * 1).skip((page - 1)* limit)
         if(getProductDetails.length == 0) return res.status(404).send({status : false, msg : "Product not found"})
         res.status(200).send({ status: true, msg: "Prodect Details find Successsully", data: getProductDetails })
     } 
@@ -171,7 +180,7 @@ const getProduct = async function (req, res) {
 }
 
 
-// ============== GET / Get Poduct by product Id =======================//
+// ============== GET / Get Product by product Id =======================//
 
 
 const getProductById = async function (req, res) {
@@ -193,7 +202,7 @@ const getProductById = async function (req, res) {
 }
 
 
-// ============== PUT / Update Poduct =======================//
+// ============== PUT / Update Product =======================//
 
 
 
@@ -304,7 +313,7 @@ const updateProduct = async function (req, res) {
 }
 
 
-// ============== DELETE / Delete Poduct =======================//
+// ============== DELETE / Delete Product =======================//
 
 
 const deleteProductById = async function (req, res) {

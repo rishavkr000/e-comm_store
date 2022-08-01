@@ -298,6 +298,13 @@ const updateUser = async function (req, res) {
             }
         }
 
+        if (files.length == 0)
+            return res.status(400).send({ status: false, message: "Please upload file" });
+        if (files.length > 1)
+            return res.status(400).send({ status: false, message: "Upload only one file at a time" });
+        if (!checkImage(files[0].originalname))
+            return res.status(400).send({ status: false, message: "format must be jpeg/jpg/png only" })
+
         if (req.files) {
             if (files && req.files.length > 0) {
                 let uploadedFileURL = await uploadFile(files[0])
