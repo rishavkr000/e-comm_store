@@ -1,17 +1,17 @@
+require('dotenv').config()
 const express = require("express");
 const multer = require("multer");
 const router = require("./routes/route");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
-const port = 3000;
 
 app.use(bodyParser.json());
 app.use(multer().any());
 
 mongoose
   .connect(
-    "mongodb+srv://group15_project:EDHBqxqKYJaki5EJ@cluster0.i9alz.mongodb.net/Rishav5th",
+    process.env.MONGODB_STRING,
     {
       useNewUrlParser: true,
     }
@@ -21,6 +21,6 @@ mongoose
 
 app.use("/", router);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`App listening on environmental port`);
 });

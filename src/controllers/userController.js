@@ -149,7 +149,7 @@ const loginUser = async function (req, res) {
                 organisation: "FunctionUp",
                 exp: Math.floor(Date.now() / 1000) + (60 * 60)
             },
-            "functionUp-Uranium"
+            process.env.SECRET_KEY
         )
         //sending token in header response
         res.setHeader("Authorization", "Bearer" + token)
