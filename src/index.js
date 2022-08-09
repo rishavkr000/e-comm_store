@@ -4,7 +4,7 @@ const router = require("./routes/route");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
-const port = 4000;
+const port = 3000;
 
 app.use(bodyParser.json());
 app.use(multer().any());
