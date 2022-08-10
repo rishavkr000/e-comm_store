@@ -8,7 +8,7 @@ const authentication = async function (req, res, next) {
        
         const token = bearerToken.split(" ")[1]
         
-        jwt.verify(token, 'functionUp-Uranium', (err, decodedToken) => {
+        jwt.verify(token, process.env.SECRET_KEY, (err, decodedToken) => {
             if (err) {
                 return res.status(401).send({
                     status: false,
