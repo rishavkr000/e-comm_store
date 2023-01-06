@@ -20,6 +20,8 @@ router.get('/products', getProduct)
 router.get('/products/:productId', getProductById)
 router.put('/products/:productId', updateProduct)
 router.delete('/products/:productId', deleteProductById)
+router.patch('/products/:productId', deleteProductById)
+
 
 // 3. Cart
 router.post('/users/:userId/cart', authentication, createCart)
