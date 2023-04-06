@@ -12,7 +12,6 @@ router.post('/register', createUser)
 router.post('/login', loginUser)
 router.get("/user/:userId/profile",authentication,profileDetails)
 router.put("/user/:userId/profile", authentication,updateUser )
-router.patch("/user/:userId/profile", authentication,updateUser )
 
 
 // 2. Product
