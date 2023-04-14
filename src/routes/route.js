@@ -2,10 +2,10 @@ const express = require('express')
 const router = express.Router()
 
 const { createUser, loginUser, profileDetails, updateUser } = require('../controllers/userController')
-const {createProduct, getProduct, getProductById, updateProduct, deleteProductById} = require('../controllers/productController')
-const {createCart, updateCart, getCart, deleteCart} = require('../controllers/cartController')
-const {createOrder, updateOrder}=require("../controllers/orderController")
-const {authentication} = require("../middlewares/auth")
+const { createProduct, getProduct, getProductById, updateProduct, deleteProductById } = require('../controllers/productController')
+const { createCart, updateCart, getCart, deleteCart } = require('../controllers/cartController')
+const { createOrder, updateOrder }=require("../controllers/orderController")
+const { authentication } = require("../middlewares/auth")
 
 // 1. User
 router.post('/register', createUser) 
