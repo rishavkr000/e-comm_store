@@ -1,35 +1,34 @@
-const aws = require('aws-sdk')
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+require("dotenv").config();
 
-//***********************************************************< AWS>*********************************************************//
-aws.config.update({
-    accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
+// ✅ Create S3 client instance
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
-let uploadFile = (file) => {
-    
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
+const uploadFile = async (file) => {
+  try {
+    const uploadParams = {
+      Bucket: "rishav-bucket-name",
+      Key: "rishav_e-comm" + file.originalname,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
 
-        var uploadParams = {
-            ACL: "public-read", //A network access control list
-            Bucket: "classroom-training-bucket",
-            Key: "group41/" + file.originalname, 
-            Body: file.buffer
-        }
+    const command = new PutObjectCommand(uploadParams);
+    await s3Client.send(command);
 
+    // ✅ Construct the public URL manually
+    const fileUrl = `https://${uploadParams.Bucket}.s3.${s3Client.config.region}.amazonaws.com/${uploadParams.Key}`;
+    return fileUrl;
 
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            // console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
+  } catch (err) {
+    throw { error: err };
+  }
+};
 
-    })
-}
-
-module.exports ={uploadFile}
+module.exports = { uploadFile };

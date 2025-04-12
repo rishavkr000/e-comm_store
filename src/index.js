@@ -9,9 +9,10 @@ const app = express();
 app.use(bodyParser.json());
 app.use(multer().any());
 
+mongoose.set('strictQuery', true);
 mongoose
   .connect(
-    process.env.MONGODB_STRING,
+    process.env.MONGO_URI,
     {
       useNewUrlParser: true,
     }

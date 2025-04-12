@@ -40,7 +40,7 @@ const isValidPrice = function (price) {
 }
 
 let checkImage = (img) => {
-    let imageRegex = /(jpeg|png|jpg)$/
+    let imageRegex = /\.(jpe?g|png)$/i;
     return imageRegex.test(img)
 }
 
@@ -55,9 +55,20 @@ let isValidInstallment = (num) => {
 }
 
 let isValidPassword = function (password) {
-    let passwordRegex = /^(?=.*[A-Za-z])[A-Za-z\d]{8,15}$/
+    let passwordRegex = /^[A-Za-z\d@$!%*?&]{8,15}$/;
     return passwordRegex.test(password)
 }
 
+const validateAddress = (type, address, res) => {
+    let { street, city, pincode } = address;
 
-module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode, isValidPrice, checkImage, titleCheck, isValidInstallment, isValidPassword }
+    if (!isValid(street)) return `❌ ${type} street required`;
+    if (!isValid(city)) return `❌ ${type} city required`;
+    if (!isValid(pincode)) return `❌ ${type} pincode required`;
+    if (!isValidPincode(pincode)) return `❌ ${type} pincode must be 6 digits`;
+
+    return null; // if valid
+};
+
+
+module.exports = { isValid, isValidRequestBody, isValidObjectId, isValidName, isValidEmail, isValidPhoneNumber, isValidPincode, isValidPrice, checkImage, titleCheck, isValidInstallment, isValidPassword, validateAddress }
