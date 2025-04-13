@@ -12,19 +12,15 @@ const createUser = async function (req, res) {
     try {
         let tempPass = req.body.password
         let data = JSON.parse(JSON.stringify(req.body));
-        // let data = JSON.parse(req.body);
         let files = req.files
     
-        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Enter details for user creation.' })
+        if (!isValidRequestBody(data)) return res.status(400).send({ status: false, msg: 'Please provide user details.' })
 
-        let { fname, lname, email, password, phone, address } = data
+        let { name, email, password, confirmPassword, phone } = data
 
 
-        if (!isValid(fname)) return res.status(400).send({ status: false, msg: 'Enter first name' })
-        if (!isValidName(fname)) return res.status(400).send({ status: false, msg: 'Enter valid first name' })
-
-        if (!isValid(lname)) return res.status(400).send({ status: false, msg: 'Enter last name.' })
-        if (!isValidName(lname)) return res.status(400).send({ status: false, msg: 'Enter valid last name' })
+        if (!isValid(name)) return res.status(400).send({ status: false, msg: 'Enter full name' })
+        if (!isValidName(name)) return res.status(400).send({ status: false, msg: 'Enter valid full name' })
 
         if (!isValid(email)) return res.status(400).send({ status: false, msg: 'Enter email' })
         if (!isValidEmail(email)) {
@@ -48,43 +44,36 @@ const createUser = async function (req, res) {
         if (!isValidPassword(password)) {
             return res.status(400).send({ status: false, message: ` // Password must be 8-15 characters long and can contain letters, digits, and special characters `})
         }
-        password = await bcrypt.hash(password, 10)
 
+        // Confirm password
+        if (!isValid(confirmPassword)) return res.status(400).send({ status: false, msg: 'Enter confirm password' });
+        if (password !== confirmPassword) return res.status(400).send({ status: false, msg: "Passwords do not match" });
 
-        if (!isValid(address))
-            return res.status(400).send({ status: false, message: "Address required" });
-
-        address = JSON.parse(address)
-
-        let { shipping, billing } = address
-
-        if (!isValid(shipping)) {
-            return res.status(400).send({ status: false, message: "Shipping address required" });
-        } else {
-            let error = validateAddress("Shipping", shipping);
-            if (error) return res.status(400).send({ status: false, message: error });
-        }
-
-        if (!isValid(billing)) {
-            return res.status(400).send({ status: false, message: "Billing address required" });
-        } else {
-            let error = validateAddress("Billing", billing);
-            if (error) return res.status(400).send({ status: false, message: error });
-        }
-        console.log("FILES =>", req.files)
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
         
-        if (files.length == 0)
-            return res.status(400).send({ status: false, message: "Please upload file" });
-        if (files.length > 1)
-            return res.status(400).send({ status: false, message: "Upload only one file at a time" });
-        if (!checkImage(files[0].originalname))
-            return res.status(400).send({ status: false, message: "format must be jpeg/jpg/png only" })
+         // Profile Image (optional)
+        let profileImage = "";
+        if (files && files.length > 0) {
+            if (files.length > 1)
+                return res.status(400).send({ status: false, message: "Upload only one file at a time" });
 
-        const profileImage = await uploadFile(files[0])
+            if (!checkImage(files[0].originalname))
+                return res.status(400).send({ status: false, message: "Profile image must be jpeg/jpg/png format" });
 
-        let result = { fname, lname, email, profileImage: profileImage, phone, password: password, address };
+            profileImage = await uploadFile(files[0]);
+        }
 
-        const newUser = await userModel.create(result)
+        // Create user object
+        const userData = {
+            name,
+            email,
+            phone,
+            password: hashedPassword,
+            profileImage
+        };
+
+        const newUser = await userModel.create(userData)
         await passwordModel.create({userId: newUser._id, email: newUser.email, password: tempPass})
         res.status(201).send({ status: true, msg: 'USER SUCCESSFULLY CREATED.', data: newUser })
     
