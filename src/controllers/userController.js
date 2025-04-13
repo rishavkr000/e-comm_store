@@ -129,7 +129,7 @@ const loginUser = async function (req, res) {
         const data = {
             user: {
                 _id: user._id,
-                name: user.fname + " " + user.lname,
+                name: user.name,
                 email: user.email,
                 phone: user.phone,
                 profileImage: user.profileImage,
@@ -192,20 +192,13 @@ const updateUser = async function (req, res) {
         if (userId != req.userId) return res.status(401).send({ status: false, msg: "User not authorized to update details" })
 
 
-        let { fname, lname, email, password, phone, address } = data
+        let { name, email, password, phone, confirmPassword } = data
 
-        if (isValid(fname)) {
-            if (!isValidName(fname)) return res.status(400).send({ status: false, message: "Enter valid fname" });
+        if (isValid(name)) {
+            if (!isValidName(name)) return res.status(400).send({ status: false, message: "Enter valid name" });
 
-            checkUser.fname = fname;
+            checkUser.name = name;
         }
-
-        if (isValid(lname)) {
-            if (!isValidName(lname)) return res.status(400).send({ status: false, message: "enter valid lname" });
-
-            checkUser.lname = lname;
-        }
-
 
         if (isValid(email)) {
             if (!isValidEmail(email)) return res.status(400).send({ status: false, message: "enter valid email" });
@@ -234,48 +227,48 @@ const updateUser = async function (req, res) {
         }
 
 
-        if (isValid(address)) {
+        // if (isValid(address)) {
 
-            address = JSON.parse(address)
+        //     address = JSON.parse(address)
 
-            let { shipping, billing } = address
+        //     let { shipping, billing } = address
 
-            if (isValid(shipping)) {
+        //     if (isValid(shipping)) {
 
-                let { street, city, pincode } = shipping
+        //         let { street, city, pincode } = shipping
 
-                if (isValid(street)){
-                    checkUser.address.shipping.street = street
-                }
-                if (isValid(city)){
-                    checkUser.address.shipping.city = city
-                }
-                if (isValid(pincode)){
-                    if(!isValidPincode(pincode)){
-                        return res.status(400).send({ status: false, message: "Shipping pincode Should be only six digit" });
-                    }
-                    checkUser.address.shipping.pincode = pincode
-                }
-            } 
+        //         if (isValid(street)){
+        //             checkUser.address.shipping.street = street
+        //         }
+        //         if (isValid(city)){
+        //             checkUser.address.shipping.city = city
+        //         }
+        //         if (isValid(pincode)){
+        //             if(!isValidPincode(pincode)){
+        //                 return res.status(400).send({ status: false, message: "Shipping pincode Should be only six digit" });
+        //             }
+        //             checkUser.address.shipping.pincode = pincode
+        //         }
+        //     } 
 
-            if (isValid(billing)) {
+        //     if (isValid(billing)) {
 
-                let { street, city, pincode } = billing
+        //         let { street, city, pincode } = billing
 
-                if (isValid(street)){
-                    checkUser.address.billing.street = street
-                }
-                if (isValid(city)){
-                    checkUser.address.billing.city = city
-                }
-                if (isValid(pincode)){
-                    if(!isValidPincode(pincode)){
-                        return res.status(400).send({ status: false, message: "billing pincode Should be only six digit" });
-                    }
-                    checkUser.address.billing.pincode = pincode
-                }
-            }
-        }
+        //         if (isValid(street)){
+        //             checkUser.address.billing.street = street
+        //         }
+        //         if (isValid(city)){
+        //             checkUser.address.billing.city = city
+        //         }
+        //         if (isValid(pincode)){
+        //             if(!isValidPincode(pincode)){
+        //                 return res.status(400).send({ status: false, message: "billing pincode Should be only six digit" });
+        //             }
+        //             checkUser.address.billing.pincode = pincode
+        //         }
+        //     }
+        // }
 
         if (files && files.length > 0) {
             if (files.length > 1) {
