@@ -4,8 +4,11 @@ const multer = require("multer");
 const router = require("./routes/route");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const cors = require('cors');
+
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(multer().any());
 

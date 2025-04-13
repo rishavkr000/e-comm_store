@@ -138,7 +138,14 @@ const loginUser = async function (req, res) {
         res.setHeader("Authorization", "Bearer" + token)
 
         const data = {
-            userId: user._id,
+            user: {
+                _id: user._id,
+                name: user.fname + " " + user.lname,
+                email: user.email,
+                phone: user.phone,
+                profileImage: user.profileImage,
+                address: user.address
+            },
             token: token
         }
         res.status(200).send({ status: true, data: data })
